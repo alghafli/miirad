@@ -1,0 +1,2 @@
+# miirad
+income and epense
