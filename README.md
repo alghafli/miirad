@@ -3,7 +3,6 @@ Track incomes and expenses.
 
 Miirad is a simple program made for small entities which need to record their incomes and expenses. Now it is only made with an Arabic interface and not translation ready but that may change in the future to allow everybody to use it.
 
-========
 Features
 ========
 
@@ -14,7 +13,6 @@ Features
 - Can use Gregorian or Hijri calendar.
 - Have a separate database for each entity you track its incomes and expenses.
 
-=================
 What Miirad lacks
 =================
 
