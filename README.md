@@ -17,4 +17,5 @@ What Miirad lacks
 =================
 
 - Translation support to present the interface for multiple languages. This may change in the future.
+- A nice interface. It needs better CSS and may be better HTML.
 - Miirad is not made for large organizations.
