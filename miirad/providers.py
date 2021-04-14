@@ -79,6 +79,19 @@ class PostHandler(BaseHandler):
         http.server.BaseHTTPRequestHandler.__init__(handler, *args, **kwargs)
         return handler
 
+class Texter(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path).resolve()
+    
+    def get_content(self, handler, url, query={}, full_url=''):
+        p = self.path
+        f = p.read_text('utf-8')
+        
+        response = http.HTTPStatus.OK
+        headers = {}
+        
+        return response, headers, f, lambda: None
+
 class PostPatterner(Patterner):
     'like `Patterner` but defines `post_content()` method'
     def post_content(self, handler, url, query={}, full_url=''):

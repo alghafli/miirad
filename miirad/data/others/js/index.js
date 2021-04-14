@@ -66,7 +66,6 @@ function populate_invoice_table() {
         
         invoice_table.innerHTML = ""
         for(i = 0; i < results.length; i++) {
-            console.log(results[i]);
             results[i][5] = results[i][5].toFixed(2);
             results[i][6] = results[i][6].toFixed(2);
             

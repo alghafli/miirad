@@ -3,10 +3,18 @@
 @import "sidebar.css";
 @import "chart.css";
 
+@font-face {
+  font-family: Markazi;
+  src: url(/__assets__/fonts/MarkaziText-VariableFont_wght.ttf);
+}
+
+body, div, input, select, h3 {
+    font-family: Markazi
+}
+
 body {
   margin: 0px;
   background-color: #007070;
-  font-family: sans-serif;
   font-size: 16px;
   font-weight: 400;
   text-rendering: optimizeLegibility;
