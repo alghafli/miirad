@@ -1,0 +1,35 @@
+<form class="undisplayed" id="edit_db_form" action="edit_db" method="post" enctype="multipart/form-data"></form>
+<table class="default" style="width: auto; height: auto; min-width: 600px;">
+    <thead>
+        <tr>
+            <th colspan="2">قاعدة بيانات جديدة</th>
+        </tr>
+    </thead>
+    <tbody class="table-hover">
+    <tr>
+        <td>
+            <label class="default-label">اسم قاعدة البيانات:</label>
+        </td>
+        <td>
+            <input name="dbname" placeholder="اسم قاعدة البيانات" class="default-input" form="edit_db_form">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label">التقويم:</label>
+        </td>
+        <td>
+            <select name="dbcalendar" class="default-input" form="edit_db_form">
+                <option value="gregorian">ميلادي</option>
+                <option value="umm_alqura">هجري (أم القرى)</option>
+                <option value="hijri">هجري</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <button class="button" style="background: #BBBBBB;" type="submit" form="edit_db_form">حفظ واختيار</button>
+        </td>
+    </tr>
+    </tbody>
+</table>

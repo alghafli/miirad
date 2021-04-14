@@ -1,0 +1,120 @@
+<form id="invoice_form" class="undisplayed" method="post" enctype="multipart/form-data">
+    {invoice_id_input}
+</form>
+<table class="input">
+    <tr>
+        <td>
+            <label class="default-label large-text">الرقم</label>
+        </td>
+        <td>
+            <label class="default-label large-text">{invoice.id}</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label large-text">العنوان</label>
+        </td>
+        <td>
+            <input name="name" form="invoice_form" placeholder="Name" class="default-input" value="{invoice.name}">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label large-text">التصنيف</label>
+        </td>
+        <td>
+            <select name="category" form="invoice_form" placeholder="التصنيف" class="default-input">
+                <option value="">اختر تصنيفا</option>
+                {categories}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label large-text">التاريخ</label>
+        </td>
+        <td>
+            <div class="form-group">
+                <select name="day" form="invoice_form" class="default-input small-input">
+                    <option value="">ي</option>
+                    {days}
+                </select>
+                <label class="default-label large-text">/</label>
+                <select name="month" form="invoice_form" class="default-input small-input">
+                    <option value="">ش</option>
+                    {months}
+                </select>
+                <label class="default-label large-text">/</label>
+                <input name="year" form="invoice_form" type="number" class="default-input small-input" value="{invoice.year}">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label large-text">الوقت</label>
+        </td>
+        <td>
+            <div class="form-group">
+                <select name="minute" form="invoice_form" class="default-input small-input">
+                    {minutes}
+                </select>
+                <label class="default-label large-text">:</label>
+                <select name="hour" form="invoice_form" class="default-input small-input">
+                    {hours}
+                </select>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<br>
+
+<div class="form-group">
+    <button class="button large-text large-input" onclick="show_incomes();">الإيرادات</button>
+    <button class="button large-text large-input" onclick="show_expenses();">المصاريف</button>
+</div>
+<div id="income-div">
+    <h3 class="table-title">الإيرادات</h3>
+    <table id="income-table" class="default">
+        <thead>
+            <tr>
+                <th></th>
+                <th>الاسم</th>
+                <th>القيمة</th>
+                <th>ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody class="table-hover">
+            {incomes}
+            <tr>
+                <td colspan="4">
+                    <input type="button" class="button large-text" value="+" style="background: #BBBBBB" onclick="add_invoice_item(this)">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div id="expense-div" class="undisplayed">
+    <h3 class="table-title">المصاريف</h3>
+    <table id="expense-table" class="default">
+        <thead>
+            <tr>
+                <th></th>
+                <th>الاسم</th>
+                <th>القيمة</th>
+                <th>ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody class="table-hover">
+            {expenses}
+            <tr>
+                <td colspan="4">
+                    <input type="button" class="button large-text" value="+" style="background: #BBBBBB" onclick="add_invoice_item(this)">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<input type="submit" form="invoice_form" class="button large-text" style="background: #BBBBBB;"  value="حفظ">
+<script src="/__assets__/js/edit_invoice.js"></script>

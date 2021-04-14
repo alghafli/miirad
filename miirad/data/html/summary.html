@@ -1,0 +1,124 @@
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>تقرير</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, width=device-width">
+<link rel="stylesheet" href="/__assets__/css/main.css">
+</head>
+
+<body>
+    <div class="main">
+        <div class="nav">
+            <ul>
+                <li><a href="index.html">Invoices</a></li>
+                <li><a href="summary.html">Summary</a></li>
+                <li><a href="settings.html">Settings</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <table class="input" style="table-layout: auto;">
+                <tr>
+                    <td>
+                        <label class="default-label">من</label>
+                    </td>
+                    <td>
+                        <select id="month0" class="default-input" style="width: auto;"/>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                    </td>
+                    <td>
+                        <label class="default-label">/</label>
+                    </td>
+                    <td>
+                        <input id="year0" type="number" class="default-input" min="1900" value="2020" style="width: auto;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="default-label">إلى</label>
+                    </td>
+                    <td>
+                        <select id="month1" class="default-input" style="width: auto;"/>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                    </td>
+                    <td>
+                        <label class="default-label">/</label>
+                    </td>
+                    <td>
+                        <input id="year1" type="number" class="default-input" min="1900" value="2020" style="width: auto;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label class="default-label">التصنيف</label></td>
+                    <td/>
+                    <td/>
+                    <td>
+                        <select id="category-input" placeholder="Category" class="default-input"/>
+                            <option value="none">كل التصنيفات</option>
+                            <option value="0">المدرسة</option>
+                            <option value="1">المكتبة</option>
+                            <option value="2">الجامع</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <input type="button" class="button" value="Generate Report">
+                    </td>
+                </tr>
+            </table>
+
+            <h3 class="table-title">التقرير</h3>
+            <table class="default">
+                <thead>
+                    <tr>
+                        <th>الشهر</th>
+                        <th>الإيراد/المصروف</th>
+                    </tr>
+                </thead>
+                <tbody class="table-hover">
+                    <tr>
+                        <td>1/2020</td>
+                        <td>50,000.00</td>
+                    </tr>
+                    <tr>
+                        <td>2/2020</td>
+                        <td>50,000.00</td>
+                    </tr>
+                    <tr>
+                        <td>3/2020</td>
+                        <td>50,000.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            <canvas id="graph_canvas" width="700px" height="500px" class="chart">
+            </canvas>
+        </div>
+    </div>
+    <script src="/__assets__/js/summary.js"></script>
+</body>

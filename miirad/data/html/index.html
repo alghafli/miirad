@@ -1,0 +1,105 @@
+<table class="input">
+    <tr>
+        <td>
+            <input id="search-input" placeholder="Search" class="default-input">
+        </td>
+        <td colspan="2">
+            <select id="category-input" class="default-input">
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label">من</label>
+        </td>
+        <td colspan="2">
+            <label class="default-label">إلى</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="form-group">
+                <select id="day-0-input" class="default-input small-input">
+                    <option value="">ي</option>
+                    {{days}}
+                </select>
+                <label class="default-label large-text">/</label>
+                <select id="month-0-input" class="default-input small-input">
+                    <option value="">ش</option>
+                    {{months}}
+                </select>
+                <label class="default-label large-text">/</label>
+                <select id="year-0-input" class="default-input medium-input">
+                    <option value="">سنة</option>
+                    {{years}}
+                </select>
+            </div>
+        </td>
+        <td colspan="2">
+            <div class="form-group">
+                <select id="day-1-input" class="default-input small-input">
+                    <option value="">ي</option>
+                    {{days}}
+                </select>
+                <label class="default-label large-text">/</label>
+                <select id="month-1-input" class="default-input small-input">
+                    <option value="">ش</option>
+                    {{months}}
+                </select>
+                <label class="default-label large-text">/</label>
+                <select id="year-1-input" class="default-input medium-input">
+                    <option value="">سنة</option>
+                    {{years}}
+                </select>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label">القيمة بين</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input id="value0" type="number" class="default-input">
+        </td>
+        <td>
+            <label class="default-label">و</label>
+        </td>
+        <td>
+            <input id="value1" type="number" class="default-input">
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <input type="button" class="button" value="ابحث" onclick="filter_invoices();">
+        </td>
+    </tr>
+</table>
+
+<div class="form-group">
+    <h3 class="table-title">جدول الفواتير</h3>
+    <a href="/edit_invoice"><div class="button large-text">+</div></a>
+</div>
+<table id="invoice-table" class="default">
+    <thead>
+        <tr>
+            <th>رقم الفاتورة</th>
+            <th>التاريخ</th>
+            <th>الاسم</th>
+            <th>التصنيف</th>
+            <th>البنود</th>
+            <th>الإيراد</th>
+            <th>المصروف</th>
+        </tr>
+    </thead>
+    <tbody id="invoice-table-body" class="table-hover"></tbody>
+</table>
+<div class="form-group">
+    <button class="button large-text" onclick="next_page(1);">&lt</button>
+    <label id="page_label" class="default-label large-text"></label>
+    <button class="button large-text" onclick="next_page(-1);">&gt</button>
+</div>
+
+<script src="/__assets__/js/index.js"></script>
+

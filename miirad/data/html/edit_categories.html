@@ -1,0 +1,22 @@
+<form id="save_form" class="undisplayed" method="post" enctype="multipart/form-data"></form>
+<table class="default" style="width: auto; height: auto; min-width: 600px;">
+    <thead>
+        <tr>
+            <th colspan="2">تحرير التصنيفات</th>
+        </tr>
+    </thead>
+    <tbody class="table-hover">
+        {category_list}
+        <tr>
+            <td colspan="2">
+                <button class="button" style="background: #BBBBBB;" onclick="add_category(this)">جديد</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button type="submit" form="save_form" class="button" style="background: #BBBBBB;">حفظ</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script src="/__assets__/js/edit_categories.js"></script>
