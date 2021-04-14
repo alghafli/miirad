@@ -1,2 +1,2 @@
 # miirad
-income and epense
+track incomes and expenses.
