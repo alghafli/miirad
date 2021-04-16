@@ -4,7 +4,7 @@ import random
 from pathlib import Path
 from sqlalchemy import create_engine, desc, asc
 from sqlalchemy.orm import Session
-from .utils import partial_caller
+from .utils import partial_caller, backup
 from .db import *
 import io
 import http
@@ -18,7 +18,6 @@ import math
 from . import multicalendar
 import datetime
 from http import HTTPStatus
-import shutil
 
 def is_integer(v):
     try:
@@ -26,12 +25,6 @@ def is_integer(v):
         return True
     except ValueError:
         return False
-
-def copy_db(f, new_f):
-    engine = create_engine('sqlite:///{}'.format(f))
-    with engine.connect() as con:
-        con.execute('BEGIN IMMEDIATE')
-        shutil.copy(f, new_f)
 
 class PostHandler(BaseHandler):
     def do_POST(self):
@@ -84,8 +77,7 @@ class Texter(BaseProvider):
         self.path = Path(path).resolve()
     
     def get_content(self, handler, url, query={}, full_url=''):
-        p = self.path
-        f = p.read_text('utf-8')
+        f = self.path.read_text('utf-8')
         
         response = http.HTTPStatus.OK
         headers = {}
@@ -966,7 +958,7 @@ class DBCopier(BaseProvider):
         pin = Path(self.path) / 'db' / '{}.sqlite3'.format(
             content['current_dbname'])
         pout = Path(self.path) / 'db' / '{}.sqlite3'.format(content['dbname'])
-        copy_db(pin, pout)
+        backup(pin, pout)
         engine = create_engine('sqlite:///{}'.format(pout))
     
         handler.session['dbengine'] = engine
