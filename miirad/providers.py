@@ -18,6 +18,8 @@ import math
 from . import multicalendar
 import datetime
 from http import HTTPStatus
+import time
+import tempfile
 
 def is_integer(v):
     try:
@@ -171,7 +173,7 @@ class DBSelector(BaseProvider):
     def get_content(self, handler, url, query={}, full_url=''):
         try:
             if 'dbengine' not in handler.session:
-                p = Path(self.path) / 'db'
+                p = self.path / 'db'
                 p.mkdir(parents=True, exist_ok=True)
                 dbs = list(p.iterdir())
                 if dbs:
@@ -207,7 +209,7 @@ class DBSelector(BaseProvider):
     def post_content(self, handler, url, query={}, full_url=''):
         try:
             if 'dbengine' not in handler.session:
-                p = Path(self.path) / 'db'
+                p = self.path / 'db'
                 p.mkdir(parents=True, exist_ok=True)
                 dbs = list(p.iterdir())
                 if dbs:
@@ -292,6 +294,7 @@ class DBEditor(BaseProvider):
         return response, headers, f, lambda: None
     
     def create_db(self, dbname):
+        print('create', dbname)
         dbpath = self.path / 'db' / '{}.sqlite3'.format(dbname)
         dbpath.parent.mkdir(parents=True, exist_ok=True)
         engine = create_engine('sqlite:///{}'.format(dbpath))
@@ -698,7 +701,7 @@ class InvoiceEditor(BaseProvider):
             item_template = '\n'.join((
                 '<tr>',
                 '<td>',
-                '<button class="button large-text" style="background: #BBBBBB;" onclick="remove_row(this);">حذف</button>',
+                '<button class="button large-text" onclick="remove_row(this);">حذف</button>',
                 '</td>',
                 '<td>',
                 '<input name="item-{0.id}-name" form="invoice_form" placeholder="اسم البند" class="default-input" value="{0.name}">',
@@ -859,21 +862,23 @@ class DbLister(BaseProvider):
         template = (
             '<tr>' +
             '<td>' +
-            '<button class="button" style="background: #BBBBBB;" form="change_db_form" type="submit" name="dbname" value="{0}">اختر</button>' +
+            '<button class="button" form="change_db_form" type="submit" name="dbname" value="{0}">اختر</button>' +
             '<br>' +
-            '<button class="button" style="background: #BBBBBB; text-align: center;" onclick="document.location.href = \'copy_db?current_dbname={0}\';">نسخ</button>' +
+            '<button class="button" onclick="document.location.href = \'copy_db?current_dbname={0}\';">نسخ</button>' +
             '<br>' +
-            '<button class="button" style="background: #BBBBBB; text-align: center;" onclick="document.location.href = \'delete_db?current_dbname={0}\';">حذف</button>' +
+            '<button class="button" onclick="document.location.href = \'delete_db?current_dbname={0}\';">حذف</button>' +
             '</td>' +
             '<td>{0}</td>' +
             '</tr>'
         )
         
-        p = Path(self.path) / 'db'
+        p = self.path / 'db'
         
         db_list = []
         for c in p.iterdir():
             db_list.append(template.format(c.stem))
+        
+        db_list.sort()
         
         p = Path(__file__).parent / 'data/html/db_list.html'
         f = p.read_text('utf-8').format(db_list='\n'.join(db_list))
@@ -902,7 +907,7 @@ class DBChanger(BaseProvider):
             if c.name not in content:
                 content[c.name] = c.value
         
-        db_path = Path(self.path) / 'db' / '{}.sqlite3'.format(
+        db_path = self.path / 'db' / '{}.sqlite3'.format(
             content['dbname'])
         engine = create_engine('sqlite:///{}'.format(db_path))
     
@@ -955,9 +960,9 @@ class DBCopier(BaseProvider):
             if c.name not in content:
                 content[c.name] = c.value
         
-        pin = Path(self.path) / 'db' / '{}.sqlite3'.format(
+        pin = self.path / 'db' / '{}.sqlite3'.format(
             content['current_dbname'])
-        pout = Path(self.path) / 'db' / '{}.sqlite3'.format(content['dbname'])
+        pout = self.path / 'db' / '{}.sqlite3'.format(content['dbname'])
         backup(pin, pout)
         engine = create_engine('sqlite:///{}'.format(pout))
     
@@ -988,7 +993,7 @@ class CategoryEditor(BaseProvider):
             '<input form="save_form" placeholder="Category Name" name="cat_{0.id}" value="{0.name}" class="default-input"/>'
             '</td>'
             '<td>'
-            '<button class="button" style="background: #BBBBBB;" onclick="remove_row(this)">حذف</button>'
+            '<button class="button" onclick="remove_row(this)">حذف</button>'
             '</td>'
             '</tr>'
         )
@@ -1045,4 +1050,250 @@ class CategoryEditor(BaseProvider):
             }
         
         return response, headers, f, lambda: None
+
+class BackupCreator(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path).resolve()
     
+    def get_content(self, handler, url, query={}, full_url=''):
+        p = Path(__file__).parent / 'data/html/create_backup.html'
+        f = p.read_text('utf-8')
+        template = '<option value="{0}">{1}</option>'
+        
+        p = self.path / 'backup/named/'
+        p.mkdir(parents=True, exist_ok=True)
+        
+        dbname = Path(handler.session['dbname']).stem
+        cal = Config.get(handler.dbsession, 'calendar', default='gregorian')
+        backup_list = []
+        for c in p.iterdir():
+            c = c.stem.split('_')
+            if c[0] == dbname:
+                c[2] = multicalendar.fromtimestamp(int(c[2]), cal)
+                c[2][-1] = int(c[2][-1])
+                backup_list.append(c)
+        
+        backup_list_html = []
+        for c in sorted(backup_list, key=lambda arg: arg[2]):
+            option_text = '{0} - {1[0]}-{1[1]}-{1[2]} {1[3]:02}:{1[4]:02}:{1[5]:02}'.format(c[1], c[2])
+            backup_list_html.append(template.format(c[1], option_text))
+        
+        f = f.format(backup_list='\n'.join(backup_list_html))
+        
+        response = http.HTTPStatus.OK
+        headers = {}
+        
+        return response, headers, f, lambda: None
+    
+    def post_content(self, handler, url, query={}, full_url=''):
+        l = int(handler.headers['Content-Length'])
+        content_type, pdict = parse_header(handler.headers['Content-Type'])
+        
+        content = handler.rfile.read(l)
+        stream = io.BytesIO(content)
+        mp = multipart.MultipartParser(
+            stream, pdict['boundary'], len(content), charset='utf8')
+        
+        content = {}
+        
+        for c in mp:
+            if c.name not in content:
+                content[c.name] = c.value
+        
+        if 'replace' in content:
+            backup_name = content['backup-name-replace']
+        else:
+            backup_name = content['backup-name']
+        
+        backup_dir = self.path / 'backup/named'
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        dbname = Path(handler.session['dbname']).stem
+        t = int(time.time())
+        backup_file_name = '{}_{}_{}.sqlite3'.format(dbname, backup_name, t)
+        backup_path = backup_dir / backup_file_name
+        
+        dbpath = self.path / 'db' / '{}'.format(
+            handler.session['dbname'])
+        backup(dbpath, backup_path)
+        
+        if 'replace' in content:
+            for c in backup_dir.iterdir():
+                if c != backup_path:
+                    parts = c.name.split('_')
+                    if parts[0] == dbname and parts[1] == backup_name:
+                        c.unlink()
+        
+        f = io.BytesIO()
+            
+        response = http.HTTPStatus.SEE_OTHER
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+                'Content-Type':'text/plain;charset=utf-8',
+                'Content-Length': length,
+                'Location': ''
+            }
+        
+        return response, headers, f, lambda: None
+
+class BackupRestorer(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path).resolve()
+    
+    def get_content(self, handler, url, query={}, full_url=''):
+        p = Path(__file__).parent / 'data/html/restore_backup.html'
+        f = p.read_text('utf-8')
+        template = '<option value="{0}">{1}</option>'
+        
+        dbname = Path(handler.session['dbname']).stem
+        cal = Config.get(handler.dbsession, 'calendar', default='gregorian')
+        
+        p = self.path / 'backup/auto/'
+        p.mkdir(parents=True, exist_ok=True)
+        
+        backup_list = []
+        for c in p.iterdir():
+            c = [c.name] + c.stem.split('_')
+            if c[1] == dbname:
+                c[2] = multicalendar.fromtimestamp(int(c[2]), cal)
+                c[2][-1] = int(c[2][-1])
+                backup_list.append(c)
+        
+        auto_backup_html = []
+        for c in sorted(backup_list, key=lambda arg: arg[2], reverse=True):
+            option_text = '{}-{}-{} {:02}:{:02}:{:02}'.format(*c[2])
+            auto_backup_html.append(template.format(c[0], option_text))
+        
+        p = self.path / 'backup/named/'
+        p.mkdir(parents=True, exist_ok=True)
+        
+        backup_list = []
+        for c in p.iterdir():
+            c = [c.name] + c.stem.split('_')
+            if c[1] == dbname:
+                c[3] = multicalendar.fromtimestamp(int(c[3]), cal)
+                c[3][-1] = int(c[3][-1])
+                backup_list.append(c)
+        
+        named_backup_html = []
+        for c in sorted(backup_list, key=lambda arg: arg[3], reverse=True):
+            option_text = '{0} - {1[0]}-{1[1]}-{1[2]} {1[3]:02}:{1[4]:02}:{1[5]:02}'.format(c[2], c[3])
+            named_backup_html.append(template.format(c[0], option_text))
+        
+        f = f.format(
+            auto_backup_list='\n'.join(auto_backup_html),
+            named_backup_list='\n'.join(named_backup_html)
+        )
+        
+        response = http.HTTPStatus.OK
+        headers = {}
+        
+        return response, headers, f, lambda: None
+    
+    def post_content(self, handler, url, query={}, full_url=''):
+        l = int(handler.headers['Content-Length'])
+        content_type, pdict = parse_header(handler.headers['Content-Type'])
+        
+        content = handler.rfile.read(l)
+        stream = io.BytesIO(content)
+        mp = multipart.MultipartParser(
+            stream, pdict['boundary'], len(content), charset='utf8')
+        
+        content = {}
+        
+        for c in mp:
+            if c.name not in content:
+                content[c.name] = c.value
+        
+        if 'auto-backup' in content:
+            backup_path = self.path / 'backup/auto' / content['auto-backup']
+        else:
+            backup_path = self.path / 'backup/named' / content['named-backup']
+        
+        dbpath = self.path / 'db' / '{}'.format(
+            handler.session['dbname'])
+        backup(backup_path, dbpath, readable=False)
+        
+        f = io.BytesIO()
+            
+        response = http.HTTPStatus.SEE_OTHER
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+                'Content-Type':'text/plain;charset=utf-8',
+                'Content-Length': length,
+                'Location': ''
+            }
+        
+        return response, headers, f, lambda: None
+
+class DBDownloader(BaseProvider):
+    @staticmethod
+    def get_content(handler, url, query={}, full_url=''):
+        p = Path(__file__).parent / 'data/html/download.html'
+        f = p.read_text('utf-8')
+        
+        dbname = Path(handler.session['dbname']).stem
+        sqlite_name = '{}.sqlite3'.format(dbname)
+        xlsx_name = '{}.xlsx'.format(dbname)
+        
+        f = f.format(dbname=dbname, sqlite_name=sqlite_name,
+            xlsx_name=xlsx_name)
+        response = http.HTTPStatus.OK
+        headers = {}
+        
+        return response, headers, f, lambda: None
+
+class SQLiteDownloader(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path).resolve()
+    
+    def get_content(self, handler, url, query={}, full_url=''):
+        db_path = self.path / 'db' / handler.session['dbname']
+        tmp_handle, tmp_path = tempfile.mkstemp()
+        try:
+            open(tmp_handle).close()
+            backup(db_path, tmp_path)
+            
+            p = Path(tmp_path)
+            f = p.open('br')
+            
+            response = http.HTTPStatus.OK
+            length = f.seek(0, 2)
+            f.seek(0)
+            headers = {
+                'Content-Type':'application/vnd.sqlite3',
+                'Content-Length': length
+            }
+            
+            return response, headers, f, lambda: p.unlink()
+        except:
+            Path(tmp_path).unlink()
+
+class XLSXDownloader(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path).resolve()
+    
+    def get_content(self, handler, url, query={}, full_url=''):
+        raise NotImplementedError
+        db_path = self.path / 'db' / handler.session['dbname']
+        tmp_handle, tmp_path = tempfile.mkstemp()
+        try:
+            open(tmp_handle).close()
+            backup(db_path, tmp_path)
+            
+            p = Path(tmp_path)
+            f = p.open('br')
+            
+            response = http.HTTPStatus.OK
+            length = f.seek(0, 2)
+            f.seek(0)
+            headers = {
+                'Content-Type':'application/vnd.sqlite3',
+                'Content-Length': length
+            }
+            
+            return response, headers, f, lambda: p.unlink()
+        except:
+            Path(tmp_path).unlink()
+

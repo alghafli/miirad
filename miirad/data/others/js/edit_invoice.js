@@ -20,7 +20,7 @@ function add_invoice_item(button) {
     var row = tbody.insertRow(tbody.rows.length-1);
     
     var cell = row.insertCell(-1);
-    cell.innerHTML = '<button class="button large-text" style="background: #BBBBBB;" onclick="remove_row(this);">حذف</button>';
+    cell.innerHTML = '<button class="button large-text" onclick="remove_row(this);">حذف</button>';
     
     var cell = row.insertCell(-1);
     cell.innerHTML = '<input name="{}-{}-name" form="invoice_form" placeholder="اسم البند" class="default-input">'.replace('{}', value_type).replace('{}', new_item_count);

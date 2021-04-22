@@ -14,9 +14,18 @@ def caller(*args):
 def partial_caller(*args):
     return partial(caller, *args)
 
-def backup(f, new_f):
+def backup(f, new_f, readable=True):
     engine = create_engine('sqlite:///{}'.format(f))
     with engine.connect() as con:
-        con.execute('BEGIN IMMEDIATE')
+        if readable:
+            con.execute('BEGIN IMMEDIATE')
+        else:
+            con.execute('BEGIN EXCLUSIVE')
         shutil.copy(f, new_f)
 
+def lock_connection(con, readable=True):
+    with engine.connect() as con:
+        if readable:
+            con.execute('BEGIN IMMEDIATE')
+        else:
+            con.execute('BEGIN EXCLUSIVE')

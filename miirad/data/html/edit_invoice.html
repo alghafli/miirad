@@ -15,7 +15,7 @@
             <label class="default-label large-text">العنوان</label>
         </td>
         <td>
-            <input name="name" form="invoice_form" placeholder="Name" class="default-input" value="{invoice.name}">
+            <input name="name" form="invoice_form" placeholder="العنوان" class="default-input" value="{invoice.name}">
         </td>
     </tr>
     <tr>
@@ -88,7 +88,7 @@
             {incomes}
             <tr>
                 <td colspan="4">
-                    <input type="button" class="button large-text" value="+" style="background: #BBBBBB" onclick="add_invoice_item(this)">
+                    <input type="button" class="button large-text" value="+" onclick="add_invoice_item(this)">
                 </td>
             </tr>
         </tbody>
@@ -109,12 +109,12 @@
             {expenses}
             <tr>
                 <td colspan="4">
-                    <input type="button" class="button large-text" value="+" style="background: #BBBBBB" onclick="add_invoice_item(this)">
+                    <input type="button" class="button large-text" value="+" onclick="add_invoice_item(this)">
                 </td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<input type="submit" form="invoice_form" class="button large-text" style="background: #BBBBBB;"  value="حفظ">
+<input type="submit" form="invoice_form" class="button large-text"  value="حفظ">
 <script src="/__assets__/js/edit_invoice.js"></script>

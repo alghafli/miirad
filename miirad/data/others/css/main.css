@@ -4,17 +4,17 @@
 @import "chart.css";
 
 @font-face {
-  font-family: Markazi;
-  src: url(/__assets__/fonts/MarkaziText-VariableFont_wght.ttf);
+  font-family: default-font;
+  src: url(/__assets__/fonts/Amiri-Regular.ttf);
 }
 
-body, div, input, select, h3 {
-    font-family: Markazi
+body, div, input, button, select, h3 {
+    font-family: default-font
 }
 
 body {
   margin: 0px;
-  background-color: #007070;
+  background-color: #03b0b0;
   font-size: 16px;
   font-weight: 400;
   text-rendering: optimizeLegibility;

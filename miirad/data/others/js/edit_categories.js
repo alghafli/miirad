@@ -20,7 +20,7 @@ function add_category(button) {
     var cell = row.insertCell(-1);
     cell.innerHTML = '<input form="save_form" placeholder="اسم التصنيف" name="new_{}" class="default-input"/>'.replace('{}', new_cat_count);
     var cell = row.insertCell(-1);
-    cell.innerHTML = '<button class="button" style="background: #BBBBBB;" onclick="remove_row(this)">حذف</button>';
+    cell.innerHTML = '<button class="button" onclick="remove_row(this)">حذف</button>';
     new_cat_count = new_cat_count + 1
 }
 

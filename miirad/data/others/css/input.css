@@ -2,16 +2,13 @@ table.input {
     table-layout: fixed;
 }
 
-input,  select {
-    width: 300px;
-}
-
 .button {
-  color:#555A74;
-  background:#EEE;
+  color: #f40b17;
+  background: #fdfbb4;
   font-size:18px;
   padding:5px;
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+  text-align: center;
   border-radius: 10px;
   border: none;
   width: 100px;
@@ -20,7 +17,7 @@ input,  select {
 
 .default-label {
     font-size: 20px;
-    color: #CBD1DC;
+    color: #02048d;
 }
 
 .default-input {
@@ -29,8 +26,8 @@ input,  select {
     padding: 8px 16px;
     font-size: 20px;
     border-radius: 6px;
-    border: 1px solid #CDD9ED;
-    background: #FFF;
+    border: 1px solid #093e9a;
+    background: #feffe0;
 }
 
 .small-input {

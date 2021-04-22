@@ -1,0 +1,26 @@
+<h3 class="table-title">إنشاء نسخة احتياطية</h3>
+<form id="backup_form" method="post" enctype="multipart/form-data">
+    <table class="input">
+        <tr>
+            <td colspan="2">
+                <input id="replace-checkbox" type="checkbox" name="replace" value="1" onchange="on_replace_checkbox_change(this);">
+                <label class="default-label" for="replace-checkbox">استبدال نسخة سابقة</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="default-label">اسم النسخة</label>
+            </td>
+            <td>
+                <input id="name-input" name="backup-name" placeholder="اسم النسخة" class="default-input">
+                <select id="name-select" name="backup-name-replace" class="default-input undisplayed">
+                {backup_list}
+                </select>
+            </td>
+        </tr>
+    </table>
+
+    <input type="submit" class="button large-input large-text" value="إنشاء نسخة">
+</form>
+<script src="/__assets__/js/create_backup.js"></script>
+

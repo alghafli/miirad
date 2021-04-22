@@ -20,4 +20,7 @@ def load_calendar(calendar):
         import_name = '.calendars.{}'.format(calendar)
         calendars[calendar] = importlib.import_module(import_name, 'miirad')
 
+def fromtimestamp(ts, calendar='gregorian'):
+    load_calendar(calendar)
+    return calendars[calendar].fromtimestamp(ts)
 

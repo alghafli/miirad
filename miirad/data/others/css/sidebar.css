@@ -3,7 +3,7 @@ div.nav {
   width: 200px;
   margin-left: 2px;
 /*  border-right: 5px solid #C1C3D1;*/
-  background: #ffeca5;
+  background: #fffca3;
 }
 
 div.nav ul {
@@ -15,12 +15,12 @@ div.nav ul {
 }
   
 div.nav ul li {
-  border-top: 1px solid #C1C3D1;
-  border-bottom: 1px solid #C1C3D1;
-  color:#666B85;
+  border-top: 1px solid #040a7c;
+  border-bottom: 1px solid #040a7c;
+  color: #052efa;
   font-size:18px;
   font-weight:normal;
-  background:#FFFFFF;
+  background: #86fdc2;
   padding: 20px;
   text-align:right;
   vertical-align: middle;
@@ -29,12 +29,12 @@ div.nav ul li {
 }
 
 div.nav ul li:nth-child(odd) {
-  background:#EBEBEB;
+  background: #8affc4;
 }
 
 div.nav ul li:hover {
-  background:#4E5066;
-  color:#FFFFFF;
+  background: #fafdc9;
+  color: #062def;
   border-top: 1px solid #22262e;
 }
  
