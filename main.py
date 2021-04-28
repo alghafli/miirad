@@ -43,6 +43,8 @@ db_patterner.add('restore_backup$', BackupRestorer(config_dir))
 db_patterner.add('download$', DBDownloader)
 db_patterner.add('download/sqlite', SQLiteDownloader(config_dir))
 db_patterner.add('download/xlsx', XLSXDownloader(config_dir))
+db_patterner.add('upload', SQLiteUploader(config_dir))
+db_patterner.add('delete_db', DBDeleter(config_dir))
 db_patterner.add('$', Indexer)
 
 #after getting session

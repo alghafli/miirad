@@ -600,10 +600,14 @@ class InvoiceViewer(BaseProvider):
 class InvoiceDeleter(BaseProvider):
     @staticmethod
     def get_content(handler, url, query={}, full_url=''):
-        p = Path(__file__).parent / 'data/html/delete_invoice.html'
+        p = Path(__file__).parent / 'data/html/delete.html'
         f = p.read_text('utf-8')
         
-        f = f.format(id=query['id'][0])
+        id_ = query['id'][0]
+        message = 'حذف الفاتورة رقم {}؟'.format(id_)
+        inputs = '<input type="hidden" name="id" value="{}">'.format(id_)
+        back_url = '/invoice?id={}'.format(id_)
+        f = f.format(message=message, inputs=inputs, back_url=back_url)
         
         response = http.HTTPStatus.OK
         headers = {}
@@ -612,7 +616,21 @@ class InvoiceDeleter(BaseProvider):
     
     @staticmethod
     def post_content(handler, url, query={}, full_url=''):
-        id_ = query['id'][0]
+        l = int(handler.headers['Content-Length'])
+        content_type, pdict = parse_header(handler.headers['Content-Type'])
+        
+        content = handler.rfile.read(l)
+        stream = io.BytesIO(content)
+        mp = multipart.MultipartParser(
+            stream, pdict['boundary'], len(content), charset='utf8')
+        
+        content = {}
+        
+        for c in mp:
+            if c.name not in content:
+                content[c.name] = c.value
+        
+        id_ = content['id']
         invoice = handler.dbsession.query(Invoice).get(id_)
         handler.dbsession.delete(invoice)
         handler.dbsession.commit()
@@ -990,7 +1008,7 @@ class CategoryEditor(BaseProvider):
         template = (
             '<tr>'
             '<td>'
-            '<input form="save_form" placeholder="Category Name" name="cat_{0.id}" value="{0.name}" class="default-input"/>'
+            '<input form="save_form" placeholder="اسم التصنيف" name="cat_{0.id}" value="{0.name}" class="default-input"/>'
             '</td>'
             '<td>'
             '<button class="button" onclick="remove_row(this)">حذف</button>'
@@ -1269,6 +1287,7 @@ class SQLiteDownloader(BaseProvider):
             return response, headers, f, lambda: p.unlink()
         except:
             Path(tmp_path).unlink()
+            raise
 
 class XLSXDownloader(BaseProvider):
     def __init__(self, path):
@@ -1296,4 +1315,135 @@ class XLSXDownloader(BaseProvider):
             return response, headers, f, lambda: p.unlink()
         except:
             Path(tmp_path).unlink()
+
+class SQLiteDownloader(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path).resolve()
+    
+    def get_content(self, handler, url, query={}, full_url=''):
+        db_path = self.path / 'db' / handler.session['dbname']
+        tmp_handle, tmp_path = tempfile.mkstemp()
+        try:
+            open(tmp_handle).close()
+            backup(db_path, tmp_path)
+            
+            p = Path(tmp_path)
+            f = p.open('br')
+            
+            response = http.HTTPStatus.OK
+            length = f.seek(0, 2)
+            f.seek(0)
+            headers = {
+                'Content-Type':'application/vnd.sqlite3',
+                'Content-Length': length
+            }
+            
+            return response, headers, f, lambda: p.unlink()
+        except:
+            Path(tmp_path).unlink()
+
+class SQLiteUploader(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path)
+    
+    @staticmethod
+    def get_content(handler, url, query={}, full_url=''):
+        p = Path(__file__).parent / 'data/html/upload.html'
+        
+        f = p.read_text('utf-8')
+        
+        response = http.HTTPStatus.OK
+        headers = {
+        }
+        
+        return response, headers, f, lambda: None
+    
+    def post_content(self, handler, url, query={}, full_url=''):
+        l = int(handler.headers['Content-Length'])
+        content_type, pdict = parse_header(handler.headers['Content-Type'])
+        
+        content = handler.rfile.read(l)
+        stream = io.BytesIO(content)
+        mp = multipart.MultipartParser(
+            stream, pdict['boundary'], len(content), charset='utf8')
+        
+        content = {}
+        
+        for c in mp:
+            if c.name not in content:
+                if c.filename or c.content_type:
+                    content[c.name] = c.raw
+                else:
+                    content[c.name] = c.value
+        
+        data = content['dbfile']
+        
+        dbpath = self.path / 'db' / '{}'.format(
+            handler.session['dbname'])
+        
+        backup(data, dbpath, readable=False)
+        
+        f = io.BytesIO()
+            
+        response = http.HTTPStatus.SEE_OTHER
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+                'Content-Type':'text/plain;charset=utf-8',
+                'Content-Length': length,
+                'Location': '/settings'
+            }
+        
+        return response, headers, f, lambda: None
+
+class DBDeleter(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path)
+    
+    @staticmethod
+    def get_content(handler, url, query={}, full_url=''):
+        p = Path(__file__).parent / 'data/html/delete.html'
+        f = p.read_text('utf-8')
+        
+        name = query['current_dbname'][0]
+        message = 'حذف قاعدة البيانات {}؟'.format(name)
+        inputs = '<input type="hidden" name="dbname" value="{}">'.format(name)
+        back_url = '/db_list'
+        f = f.format(message=message, inputs=inputs, back_url=back_url)
+        
+        response = http.HTTPStatus.OK
+        headers = {}
+        
+        return response, headers, f, lambda: None
+    
+    def post_content(self, handler, url, query={}, full_url=''):
+        l = int(handler.headers['Content-Length'])
+        content_type, pdict = parse_header(handler.headers['Content-Type'])
+        
+        content = handler.rfile.read(l)
+        stream = io.BytesIO(content)
+        mp = multipart.MultipartParser(
+            stream, pdict['boundary'], len(content), charset='utf8')
+        
+        content = {}
+        
+        for c in mp:
+            if c.name not in content:
+                content[c.name] = c.value
+        
+        dbpath = self.path / 'db' / '{}.sqlite3'.format(content['dbname'])
+        dbpath.unlink()
+        
+        f = io.BytesIO()
+            
+        response = http.HTTPStatus.SEE_OTHER
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+                'Content-Type':'text/plain;charset=utf-8',
+                'Content-Length': length,
+                'Location': '/'
+            }
+        
+        return response, headers, f, lambda: None
 
