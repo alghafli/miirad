@@ -23,10 +23,10 @@ function add_invoice_item(button) {
     cell.innerHTML = '<button class="button large-text" onclick="remove_row(this);">حذف</button>';
     
     var cell = row.insertCell(-1);
-    cell.innerHTML = '<input name="{}-{}-name" form="invoice_form" placeholder="اسم البند" class="default-input">'.replace('{}', value_type).replace('{}', new_item_count);
+    cell.innerHTML = '<input name="{}-{}-name" form="invoice_form" placeholder="اسم البند" class="default-input" required>'.replace('{}', value_type).replace('{}', new_item_count);
     
     var cell = row.insertCell(-1);
-    cell.innerHTML = '<input name="{}-{}-{}" form="invoice_form" type="number" min="0" step="0.01" placeholder="القيمة" class="default-input small-input">'.replace('{}', value_type).replace('{}', new_item_count).replace('{}', value_type);
+    cell.innerHTML = '<input name="{}-{}-{}" form="invoice_form" type="number" min="0" step="0.01" placeholder="القيمة" class="default-input small-input" required>'.replace('{}', value_type).replace('{}', new_item_count).replace('{}', value_type);
     
     var cell = row.insertCell(-1);
     cell.innerHTML = '<input name="{}-{}-remark" form="invoice_form" placeholder="ملاحظات" class="default-input">'.replace('{}', value_type).replace('{}', new_item_count);

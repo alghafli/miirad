@@ -1,16 +1,7 @@
 function populate_category_select() {
     var xmlhttp = new XMLHttpRequest();
     var url = "_get_categories";
-
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var myArr = JSON.parse(this.responseText);
-            myFunction(myArr);
-        }
-    };
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-
+    
     function myFunction(arr) {
         var out = ['<option value="">اختر تصنيفا</option>'];
         var i;
@@ -21,6 +12,15 @@ function populate_category_select() {
         }
         document.getElementById("category-input").innerHTML = out.join("\n");
     }
+    
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var myArr = JSON.parse(this.responseText);
+            myFunction(myArr);
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
 }
 
 function populate_invoice_table() {
@@ -49,15 +49,6 @@ function populate_invoice_table() {
     qtext = qtext.join('&');
     url = url.replace('{}', qtext)
     
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var myArr = JSON.parse(this.responseText);
-            myFunction(myArr);
-        }
-    };
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-
     function myFunction(arr) {
         var out = [];
         var i;
@@ -81,6 +72,15 @@ function populate_invoice_table() {
             '{}', current_page + 1).replace('{}', arr['pages'])
         document.getElementById("page_label").innerHTML = page_text
     }
+    
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var myArr = JSON.parse(this.responseText);
+            myFunction(myArr);
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
 }
 
 function next_page(offset) {

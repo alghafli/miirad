@@ -1,0 +1,68 @@
+<div id="dummy"></div>
+<table class="input">
+    <tr>
+        <td>
+            <label class="default-label">من</label>
+        </td>
+        <td>
+            <div class="form-group">
+                <select id="month0" class="default-input small-input">
+                    <option value="">شهر</option>
+                    {months}
+                </select>
+                <label class="default-label">/</label>
+                <select id="year0" class="default-input small-input">
+                    <option value="">سنة</option>
+                    {years}
+                </select>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="default-label">إلى</label>
+        </td>
+        <td>
+            <div class="form-group">
+                <select id="month1" class="default-input small-input">
+                    <option value="">شهر</option>
+                    {months}
+                </select>
+                <label class="default-label">/</label>
+                <select id="year1" class="default-input small-input">
+                    <option value="">سنة</option>
+                    {years}
+                </select>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td><label class="default-label">التصنيف</label></td>
+        <td>
+            <select id="category-input" placeholder="Category" class="default-input">
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <input type="checkbox" id="categorize-input">
+             <label for="vehicle1" class="default-label">لكل تصنيف على حدة؟</label>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <button type="button" class="button" onclick="generate_report();">إنشاء تقرير</button>
+        </td>
+    </tr>
+</table>
+
+<h3 class="table-title">التقرير</h3>
+<table class="default">
+    <thead id="report-header">
+    </thead>
+    <tbody id="report-body">
+    </tbody>
+</table>
+<canvas id="graph_canvas" width="700px" height="500px" class="chart">
+</canvas>
+<script src="/__assets__/js/report.js"></script>

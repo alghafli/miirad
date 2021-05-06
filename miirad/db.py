@@ -46,6 +46,16 @@ class Invoice(Base):
             func.substr('00' + self.month.cast(Text), -2, 2) + '-' + \
             func.substr('00' + self.day.cast(Text), -2, 2)
     
+    @hybrid_property
+    def year_month(self):
+        return '{0.year:04}-{0.month:02}'.format(self)
+    
+    @date.expression
+    def year_month(self):
+        return func.substr('0000' + self.year.cast(Text), -4, 4) + '-' + \
+            func.substr('00' + self.month.cast(Text), -2, 2)
+    
+    
     def __repr__(self):
         return '<{t} {o.id} {o.name} {o.year}-{o.month}-{o.day} {o.t}>'.format(
             t=type(self).__name__, o=self)

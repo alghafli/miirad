@@ -34,6 +34,7 @@ miirad_dir = Path(providers.__file__).parent
 db_patterner = PostPatterner()
 db_patterner.add('_get_categories$', Categorier)
 db_patterner.add('_get_invoices$', InvoiceLister)
+db_patterner.add('_get_report$', ReportGetter)
 db_patterner.add('invoice$', InvoiceViewer)
 db_patterner.add('edit_invoice$', InvoiceEditor)
 db_patterner.add('delete_invoice$', InvoiceDeleter)
@@ -45,6 +46,7 @@ db_patterner.add('download/sqlite', SQLiteDownloader(config_dir))
 db_patterner.add('download/xlsx', XLSXDownloader(config_dir))
 db_patterner.add('upload', SQLiteUploader(config_dir))
 db_patterner.add('delete_db', DBDeleter(config_dir))
+db_patterner.add('report$', Reporter)
 db_patterner.add('$', Indexer)
 
 #after getting session

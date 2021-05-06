@@ -377,9 +377,9 @@ class Indexer(BaseProvider):
         
         p = Path(__file__).parent / 'data/html/index.html'
         f = p.read_text('utf-8')
-        f = f.replace('{{years}}', '\n'.join(years))
-        f = f.replace('{{months}}', '\n'.join(months))
-        f = f.replace('{{days}}', '\n'.join(days))
+        f = f.format(years='\n'.join(years), months='\n'.join(months),
+            days='\n'.join(days))
+        
         response = http.HTTPStatus.OK
         headers = {}
         
@@ -437,7 +437,7 @@ class InvoiceLister(BaseProvider):
             ).group_by(
                 Invoice.id
             ).order_by(
-                invoice_date.desc(), Invoice.t, Invoice.id
+                invoice_date.desc(), Invoice.t, Invoice.id.desc()
             )
         
         if query.setdefault('q', ''):
@@ -606,7 +606,7 @@ class InvoiceDeleter(BaseProvider):
         id_ = query['id'][0]
         message = 'حذف الفاتورة رقم {}؟'.format(id_)
         inputs = '<input type="hidden" name="id" value="{}">'.format(id_)
-        back_url = '/invoice?id={}'.format(id_)
+        back_url = 'invoice?id={}'.format(id_)
         f = f.format(message=message, inputs=inputs, back_url=back_url)
         
         response = http.HTTPStatus.OK
@@ -1408,7 +1408,7 @@ class DBDeleter(BaseProvider):
         name = query['current_dbname'][0]
         message = 'حذف قاعدة البيانات {}؟'.format(name)
         inputs = '<input type="hidden" name="dbname" value="{}">'.format(name)
-        back_url = '/db_list'
+        back_url = 'db_list'
         f = f.format(message=message, inputs=inputs, back_url=back_url)
         
         response = http.HTTPStatus.OK
@@ -1446,4 +1446,131 @@ class DBDeleter(BaseProvider):
             }
         
         return response, headers, f, lambda: None
+
+class Reporter(BaseProvider):
+    @staticmethod
+    def get_content(handler, url, query={}, full_url=''):
+        p = Path(__file__).parent / 'data/html/report.html'
+        
+        f = p.read_text('utf-8')
+        
+        cal = Config.get(handler.dbsession, 'calendar', default='gregorian')
+        last_month, last_day = multicalendar.date_values(cal)
+        
+        years = []
+        months = []
+        
+        for c in range(last_month):
+            months.append('<option>{}</option>'.format(c+1))
+        
+        fy = handler.dbsession.query(
+                Invoice.year
+            ).order_by(
+                Invoice.year
+            ).first()
+        
+        ly = handler.dbsession.query(
+                Invoice.year
+            ).order_by(
+                Invoice.year.desc()
+            ).first()
+        
+        if fy is not None and ly is not None:
+            fy = fy[0]
+            ly = ly[0]
+            for c in range(fy, ly+1):
+                years.append('<option>{}</option>'.format(c))
+        
+        f = f.format(years=years, months=months)
+        
+        response = http.HTTPStatus.OK
+        headers = {
+        }
+        
+        return response, headers, f, lambda: None
+
+class ReportGetter(BaseProvider):
+    @classmethod
+    def get_content(cls, handler, url, query={}, full_url=''):
+        for c in query:
+            query[c] = query[c][0]
+        
+        invoice_month = Invoice.year_month.label('invoice_month')
+        q = cls.query(handler)
+        
+        if is_integer(query.setdefault('category', '')):
+            q = q.filter(Category.id == int(query['category']))
+        if (
+                query.setdefault('year0', '').isdigit() and
+                query.setdefault('month0', '').isdigit()
+        ):
+            month0 = (
+                int(query['year0']),
+                int(query['month0']),
+            )
+            month0 = '{:04}-{:02}'.format(*month0)
+            q = q.filter(invoice_month >= month0)
+        if (
+                query.setdefault('year1', '').isdigit() and
+                query.setdefault('month1', '').isdigit()
+        ):
+            month1 = (
+                int(query['year1']),
+                int(query['month1']),
+            )
+            month1 = '{:04}-{:02}'.format(*month1)
+            q = q.filter(invoice_month <= month1)
+        
+        if query.setdefault('categorize', '') == 'true':
+            q = q.group_by(None).group_by('invoice_month', Category.id)
+        
+        results = q.all()
+        
+        if query['categorize'] == 'true':
+            out = {'results': {}, 'categories': {}}
+            for c in results:
+                month_dict = out['results'].setdefault(c[0], {})
+                month_dict[c[1]] = c[3], c[4]
+                if c[1] not in out['categories']:
+                    out['categories'][c[1]] = c[2]
+            
+            sorted_categories = sorted(out['categories'],
+                key=lambda x: out['categories'][x])
+            out['categories'] = [
+                (c, out['categories'][c]) for c in sorted_categories]
+        else:
+            out = {'results': {}, 'categories': ['']}
+            for c in results:
+                out['results'][c[0]] = c[3], c[4]
+            
+        page = json.dumps(out)
+        
+        f = io.BytesIO(page.encode('utf8'))
+        
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Content-Length': length
+        }
+        
+        response = http.HTTPStatus.OK
+        
+        return response, headers, f, lambda: None
+
+    @staticmethod
+    def query(handler):
+        invoice_month = Invoice.year_month.label('invoice_month')
+        income = func.sum(Item.income).label('income')
+        expense = func.sum(Item.expense).label('expense')
+        q = handler.dbsession.query(
+                invoice_month, Category.id, Category.name, income, expense
+            ).outerjoin(
+                Invoice.category
+            ).outerjoin(
+                Invoice.items
+            ).group_by(
+                'invoice_month'
+            )
+        return q
 
