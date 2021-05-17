@@ -1,7 +1,6 @@
 @import "input.css";
 @import "table.css";
 @import "sidebar.css";
-@import "chart.css";
 
 @font-face {
   font-family: default-font;
@@ -23,6 +22,7 @@ body {
 div.main {
   display: flex;
   align-items: flex-start;
+  flex-direction: column;
   width: 100%;
 }
 

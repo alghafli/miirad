@@ -92,14 +92,15 @@ function generate_report() {
                 total_expense[cat[0]] = 0;
             }
             for(key in obj.results) {
-                //[total_income, total_expense, grand_total]
-                grand_total[key] = [0, 0, 0];
+                //[total_income, total_expense]
+                grand_total[key] = [0, 0];
                 
                 row = report_table.insertRow(-1);
                 var i;
                 for (i = obj.categories.length-1;i >= 0;i--) {
                     cat = obj.categories[i];
-                    if (obj.results[key].hasOwnProperty(cat[0])) {
+                    if (obj.results[key].hasOwnProperty(cat[0]) &&
+                            obj.results[key][cat[0]][0] > 0) {
                         row.insertCell(-1).innerHTML = 
                             obj.results[key][cat[0]][0].toFixed(2);
                         total_income[cat[0]] += obj.results[key][cat[0]][0];
@@ -110,7 +111,8 @@ function generate_report() {
                 }
                 row.insertCell(-1).innerHTML = key;
                 for (cat of obj.categories) {
-                    if (obj.results[key].hasOwnProperty(cat[0])) {
+                    if (obj.results[key].hasOwnProperty(cat[0]) &&
+                            obj.results[key][cat[0]][1] > 0) {
                         row.insertCell(-1).innerHTML = 
                             obj.results[key][cat[0]][1].toFixed(2);
                         total_expense[cat[0]] += obj.results[key][cat[0]][1];
@@ -135,9 +137,19 @@ function generate_report() {
             total_expense = 0;
             for(key in obj.results) {
                 row = report_table.insertRow(-1);
-                row.insertCell(-1).innerHTML = obj.results[key][0].toFixed(2);
+                if (obj.results[key][0] > 0) {
+                    row.insertCell(-1).innerHTML =
+                        obj.results[key][0].toFixed(2);
+                } else {
+                    row.insertCell(-1)
+                }
                 row.insertCell(-1).innerHTML = key;
-                row.insertCell(-1).innerHTML = obj.results[key][1].toFixed(2);
+                if (obj.results[key][1] > 0) {
+                    row.insertCell(-1).innerHTML =
+                        obj.results[key][1].toFixed(2);
+                } else {
+                    row.insertCell(-1)
+                }
                 total_income += obj.results[key][0]
                 total_expense += obj.results[key][1];
             }
@@ -146,16 +158,12 @@ function generate_report() {
             row.insertCell(-1).innerHTML = 'المجموع';
             row.insertCell(-1).innerHTML = total_expense.toFixed(2);
             
-            for (key in obj.results) {
-                grand_total[key] =
-                    [obj.results[key][0], obj.results[key][1], 0];
-            }
+            grand_total = obj.results;
         }
         
-        for (key in grand_total) {
-            grand_total[key][2] = grand_total[key][0] - grand_total[key][1]
-        }
-        generate_graph('graph_canvas', grand_total);
+        cnvs = document.getElementById('graph_canvas');
+        cnvs.width = report_table.offsetWidth;
+        generate_graph(cnvs, grand_total);
     }
     
     xmlhttp.onreadystatechange = function() {
@@ -168,88 +176,147 @@ function generate_report() {
     xmlhttp.send();
 }
 
-function generate_graph(obj_id, gdata) {
-    var data = [];
-    for (key in gdata) {
-        data.push(gdata[key][0] - gdata[key][1]);
+function generate_graph(obj, data) {
+    var margin = 60;
+    var xlabel_clearance = 10;
+    
+    ctx = obj.getContext('2d');
+    ctx.resetTransform();
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, obj.width, obj.height);
+    
+    ctx.lineWidth = 4;
+    half_lw = ctx.lineWidth / 2;
+    ctx.strokeStyle = 'black';
+    ctx.strokeRect(half_lw, half_lw,
+        obj.width - ctx.lineWidth, obj.height - ctx.lineWidth);
+    
+    ctx.lineWidth = 2;
+    
+    dw = obj.width - 2* margin - xlabel_clearance;
+    dh = obj.height - 2*margin;
+    dtop_left = [margin + xlabel_clearance, margin];
+    dcenter = [dtop_left[0] + dw / 2, dtop_left[1] + dh / 2];
+    
+    ctx.translate(...dcenter);
+    
+    data = shorten_data(dw, dh, data, 30 * data[Object.keys(data)[0]].length, 20);
+    
+    var max_value = 0;
+    for (key in data) {
+        max_value = Math.max(max_value, data[key][0], data[key][1]);
     }
-    
-    var graph_canvas = document.getElementById(obj_id);
-    
-    ymargin = 20;
-    xmargin = 20;
-    ylegend_margin = 60;
-    xlegend_margin = 20;
-    YLEGEND_SEP = 100;
-    XLEGEND_SEP = 100;
-    
-    width = graph_canvas.width
-    height = graph_canvas.height
-    draw_height = height - 2 * ymargin - xlegend_margin;
-    draw_width = width - 2 * xmargin - ylegend_margin;
-    xlegends = data.length - 1;
-    ylegends = Math.floor(draw_height / YLEGEND_SEP);
-    
-    ctx = graph_canvas.getContext("2d");
-    ctx.font = "20px sans";
-    ctx.textBaseline = "middle";
-    
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
-    
-    ctx.strokeStyle = "black";
-    ctx.beginPath()
-    ctx.moveTo(xmargin + ylegend_margin, ymargin)
-    ctx.lineTo(xmargin + ylegend_margin, height - ymargin - xlegend_margin)
-    ctx.lineTo(width - xmargin, height - ymargin - xlegend_margin)
+    draw_coordinates(ctx, dw, dh);
+    draw_xlabels(ctx, dw, dh, margin, Object.keys(data), 30 * data[Object.keys(data)[0]].length);
+    draw_ylabels(ctx, dw, dh, xlabel_clearance, max_value, 10);
+    draw_bars(ctx, dw, dh, data, 30);
+}
+
+function draw_coordinates(ctx, w, h) {
+    ctx.strokeStyle = 'black';
+    ctx.moveTo(-w/2, -h/2);
+    ctx.lineTo(-w/2, h/2);
+    ctx.lineTo(w/2, h/2);
     ctx.stroke()
+}
+
+function shorten_data(w, h, data, label_width, min_pad) {
+    var min_group_width = 2 * min_pad + label_width;
+    var min_count = Math.floor(w / min_group_width);
+    var labels = Object.keys(data);
+    var current_count = labels.length;
+    if (current_count > min_count) {
+        var smaller_count = min_count;
+        var rm = current_count % smaller_count;
+        while(smaller_count > 1 && rm != 0) {
+            smaller_count--;
+            rm = current_count % smaller_count;
+        }
+        var aggregate_count = current_count / smaller_count;
+        var idx = 0;
+        var new_data = {};
+        var values;
+        var i, j;
+        while (idx < current_count) {
+            values = [...data[labels[idx]]];
+            for (i = 1;i < aggregate_count;i++) {
+                for (j in values) {
+                    values[j] += data[labels[idx+i]][j];
+                }
+            }
+            new_data[labels[idx]] = values;
+            idx += aggregate_count;
+        }
+        return new_data;
+    } else {
+        return data;
+    }
+}
+
+function draw_xlabels(ctx, w, h, margin, labels, label_width=30, min_pad=undefined) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'black';
     
-    var mx = data.length;
-    var mn = 1;
-    var legend_px_step = draw_width / xlegends;
+    var occupied_width = label_width * labels.length;
+    var padding = (w - occupied_width) / 2 / labels.length;
     
-    var px = xmargin + ylegend_margin;
-    var pv = mn;
+    var position = -w/2 + padding + label_width / 2;
+    y = h / 2 + margin / 2;
+    for (label of labels) {
+        ctx.fillText(label, position, y);
+        position += 2 * padding + label_width;
+    }
+}
+
+function draw_ylabels(ctx, w, h, clearance, max_value, steps=4) {
+    var step = max_value / steps;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'black';
+    ctx.strokeStyle = 'black';
     
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    while (pv <= mx) {
-        var m = ctx.measureText(pv);
-        ctx.fillText(pv, px, height - ymargin);
-        pv = pv + 1;
-        px = px + legend_px_step;
+    var x = -w / 2 - clearance;
+    var position = h / 2;
+    var value = 0;
+    var current_step = 0;
+    while (current_step <= steps) {
+        ctx.moveTo(-w/2, position);
+        ctx.lineTo(w/2, position);
+        ctx.stroke();
+        ctx.fillText(value.toFixed(2), x, position);
+        position -= h / steps;
+        value += step;
+        current_step += 1
+    }
+}
+
+function draw_bars(ctx, w, h, data, bar_width=30) {
+    var labels = Object.keys(data)
+    var key;
+    var group_width = bar_width * data[labels[0]].length;
+    var occupied_width = group_width * labels.length;
+    var padding = (w - occupied_width) / 2 / labels.length;
+    
+    var max_value = 0;
+    for (key in data) {
+        max_value = Math.max(max_value, data[key][0], data[key][1]);
     }
     
-    var mx = Math.max.apply(null, data);
-    var mn = Math.min.apply(null, data);
-    var legend_step = (mx - mn) / ylegends;
-    var legend_px_step = draw_height / ylegends;
+    bar_colors = ['blue', 'red', 'green', 'magenta', 'yellow', 'cyan'];
+    ctx.fillStyle = 'red';
+    ctx.strokeStyle = 'black';
     
-    var py = draw_height + ymargin;
-    var pv = mn;
-    
-    ctx.textAlign = "left";
-    while (pv <= mx) {
-        var num = pv.toFixed(2);
-        //var m = ctx.measureText(num);
-        ctx.fillText(num, xmargin, py);
-        pv = pv + legend_step;
-        py = py - legend_px_step;
+    var idx;
+    position = -w/2 + padding;
+    for (key in data) {
+        for (idx in data[key]) {
+            value = data[key][idx];
+            ctx.fillStyle = bar_colors[idx % bar_colors.length];
+            ctx.fillRect(position, h/2, bar_width, -value / max_value * h);
+            ctx.strokeRect(position, h/2, bar_width, -value / max_value * h);
+            position += bar_width;
+        }
+        position += 2 * padding;
     }
-    
-    var c = 0;
-    var x = draw_width * c / xlegends;
-    var y = draw_height * (data[c] - mn) / (mx - mn);
-    ctx.beginPath();
-    ctx.moveTo(xmargin + ylegend_margin + x, height - ymargin - xlegend_margin - y);
-    c++;
-    while (c < data.length) {
-        var x = draw_width * c / xlegends;
-        var y = draw_height * (data[c] - mn) / (mx - mn);
-        ctx.lineTo(xmargin + ylegend_margin + x, height - ymargin - xlegend_margin - y);
-        c++;
-    }
-    ctx.stroke();
 }
 
 populate_category_select();

@@ -9,7 +9,7 @@ h3.table-title {
    margin-bottom: 0px;
 }
 
-/*** Table Styles **/
+/*** Table Styles ***/
 
 table.default {
   background: #f4ecae;
@@ -17,7 +17,7 @@ table.default {
   border-collapse: collapse;
   height: 320px;
   margin: auto;
-  width: 100%;;
+  width: 100%;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
  
@@ -28,7 +28,7 @@ table.default th {
   border-left: 1px solid #01054b;
   font-size:23px;
   font-weight: 100;
-  padding:24px;
+  padding:5px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   vertical-align:middle;
   text-align: right;
@@ -80,7 +80,7 @@ table.default tr:last-child td:last-child {
  
 table.default tr td {
   background: #dbd9e8;
-  padding:20px;
+  padding:5px;
   font-weight:300;
   font-size:18px;
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
@@ -90,6 +90,6 @@ table.default tr td {
 }
 
 table.default tr td:first-child {
-  border-right: 0px;
+  border-right: none;
 }
 

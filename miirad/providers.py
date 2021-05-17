@@ -313,7 +313,7 @@ class Templater(Checker):
         
         try:
             dbname = Path(handler.session['dbname']).stem
-            db_label = '<label class="default-label">{}</label>'.format(dbname)
+            db_label = '<label class="dbname-label">{}</label>'.format(dbname)
         except Exception:
             db_label = ''
         if type(f) is str:
@@ -880,13 +880,12 @@ class DbLister(BaseProvider):
         template = (
             '<tr>' +
             '<td>' +
-            '<button class="button" form="change_db_form" type="submit" name="dbname" value="{0}">اختر</button>' +
             '<br>' +
             '<button class="button" onclick="document.location.href = \'copy_db?current_dbname={0}\';">نسخ</button>' +
             '<br>' +
             '<button class="button" onclick="document.location.href = \'delete_db?current_dbname={0}\';">حذف</button>' +
             '</td>' +
-            '<td>{0}</td>' +
+            '<td onclick="change_db(&quot;{0}&quot;);">{0}</td>' +
             '</tr>'
         )
         
@@ -1524,15 +1523,25 @@ class ReportGetter(BaseProvider):
         if query.setdefault('categorize', '') == 'true':
             q = q.group_by(None).group_by('invoice_month', Category.id)
         
-        results = q.all()
+        last_month = [int(c) for c in q.first()[0].split('-')]
+        last_month[1] -= 1
         
         if query['categorize'] == 'true':
             out = {'results': {}, 'categories': {}}
-            for c in results:
-                month_dict = out['results'].setdefault(c[0], {})
+            for c in q:
+                current_month = [int(c) for c in c[0].split('-')]
+                while current_month > last_month:
+                    last_month[1] += 1
+                    if last_month[1] > 12:
+                        last_month[1] = 1
+                        last_month[0] += 1
+                    out['results']['{}-{:02}'.format(*last_month)] = {}
+                month_dict = out['results'][c[0]]
                 month_dict[c[1]] = c[3], c[4]
                 if c[1] not in out['categories']:
                     out['categories'][c[1]] = c[2]
+                
+                last_month = current_month
             
             sorted_categories = sorted(out['categories'],
                 key=lambda x: out['categories'][x])
@@ -1540,7 +1549,14 @@ class ReportGetter(BaseProvider):
                 (c, out['categories'][c]) for c in sorted_categories]
         else:
             out = {'results': {}, 'categories': ['']}
-            for c in results:
+            for c in q:
+                current_month = [int(c) for c in c[0].split('-')]
+                while current_month > last_month:
+                    last_month[1] += 1
+                    if last_month[1] > 12:
+                        last_month[1] = 1
+                        last_month[0] += 1
+                    out['results']['{}-{:02}'.format(*last_month)] = 0, 0
                 out['results'][c[0]] = c[3], c[4]
             
         page = json.dumps(out)
@@ -1564,7 +1580,8 @@ class ReportGetter(BaseProvider):
         income = func.sum(Item.income).label('income')
         expense = func.sum(Item.expense).label('expense')
         q = handler.dbsession.query(
-                invoice_month, Category.id, Category.name, income, expense
+                invoice_month, Category.id, func.ifnull(Category.name, ''),
+                income, expense
             ).outerjoin(
                 Invoice.category
             ).outerjoin(

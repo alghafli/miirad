@@ -1,12 +1,18 @@
 div.nav {
-  display: block;
-  width: 200px;
+  width: 100%;
   margin-left: 2px;
-/*  border-right: 5px solid #C1C3D1;*/
-  background: #fffca3;
+  border-bottom: 5px solid black;
+  background: #aaac53;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  align-items: stretch;
 }
 
 div.nav ul {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
   border-radius:3px;
   margin: 0px;
   padding:0px;
@@ -15,8 +21,7 @@ div.nav ul {
 }
   
 div.nav ul li {
-  border-top: 1px solid #040a7c;
-  border-bottom: 1px solid #040a7c;
+  border-right: 1px solid #040a7c;
   color: #052efa;
   font-size:18px;
   font-weight:normal;
@@ -25,23 +30,24 @@ div.nav ul li {
   text-align:right;
   vertical-align: middle;
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
-  border-right: 0px;
-}
-
-div.nav ul li:nth-child(odd) {
-  background: #8affc4;
 }
 
 div.nav ul li:hover {
   background: #fafdc9;
   color: #062def;
-  border-top: 1px solid #22262e;
 }
  
 div.nav ul li:first-child {
-  border-top:none;
+  border-right:none;
 }
 
-div.nav ul li:last-child {
-  border-bottom: none;
+
+.dbname-label {
+  color: #f40b17;
+  background: #fdfbb4;
+  font-size:28px;
+  padding: 10px;
+  text-align: center;
+  width: 200px;
 }
+
