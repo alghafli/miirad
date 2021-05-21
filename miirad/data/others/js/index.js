@@ -83,6 +83,24 @@ function populate_invoice_table() {
     xmlhttp.send();
 }
 
+function populate_balance_label() {
+    var xmlhttp = new XMLHttpRequest();
+    var url = "_get_balance";
+    
+    function myFunction(value) {
+        document.getElementById("balance-label").innerHTML = value.toFixed(2)
+    }
+    
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var value = JSON.parse(this.responseText);
+            myFunction(value);
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
 function next_page(offset) {
     current_page = current_page + offset;
     populate_invoice_table();
@@ -93,6 +111,16 @@ function filter_invoices() {
     populate_invoice_table();
 }
 
+function toggle_search_table() {
+    var search_table = document.getElementById("search-table");
+    if (search_table.classList.contains('undisplayed')) {
+        search_table.classList.remove('undisplayed');
+    } else {
+        search_table.classList.add('undisplayed');
+    }
+}
+
 var current_page = 0
 populate_category_select();
 populate_invoice_table();
+populate_balance_label();

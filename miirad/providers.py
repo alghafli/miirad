@@ -20,6 +20,7 @@ import datetime
 from http import HTTPStatus
 import time
 import tempfile
+import operator
 
 def is_integer(v):
     try:
@@ -577,18 +578,26 @@ class InvoiceViewer(BaseProvider):
                 expense_template.format('مجموع المصاريف', total_expenses))
             
             if total >= 0:
-                sums.append(
-                    income_template.format('المجموع الكلي', total))
+                grand_total_incomes = '<label class="default-input">{:.2f}</label>'.format(total)
+                grand_total_expenses = ''
+                #sums.append(
+                #    income_template.format('المجموع الكلي', total))
             else:
-                sums.append(
-                    expense_template.format('المجموع الكلي', -total))
+                grand_total_incomes = ''
+                grand_total_expenses = '<label class="default-input">{:.2f}</label>'.format(-total)
+                #sums.append(
+                #    expense_template.format('المجموع الكلي', -total))
             
             incomes = '\n'.join(incomes)
             expenses = '\n'.join(expenses)
-            sums = '\n'.join(sums)
+            #sums = '\n'.join(sums)
             f = f.format(
                 invoice=invoice, category=category,
-                items=incomes+expenses+sums)
+                items=incomes+expenses,
+                total_incomes=total_incomes,
+                total_expenses=total_expenses,
+                grand_total_expenses=grand_total_expenses,
+                grand_total_incomes=grand_total_incomes)
         except ValueError:
             return BaseProvider.short_response(http.HTTPStatus.NOT_FOUND)
         
@@ -725,7 +734,7 @@ class InvoiceEditor(BaseProvider):
                 '<input name="item-{0.id}-name" form="invoice_form" placeholder="اسم البند" class="default-input" value="{0.name}">',
                 '</td>',
                 '<td>',
-                '<input name="item-{0.id}-{2}" form="invoice_form" type="number" min="0" step="0.01" placeholder="القيمة" class="default-input small-input" value="{1}">',
+                '<input name="item-{0.id}-{2}" form="invoice_form" type="number" min="0" step="0.01" placeholder="القيمة" class="default-input" value="{1}">',
                 '</td>',
                 '<td>',
                 '<input name="item-{0.id}-remark" form="invoice_form" placeholder="ملاحظات" class="default-input" value="{0.remark}">',
@@ -1590,4 +1599,53 @@ class ReportGetter(BaseProvider):
                 'invoice_month'
             )
         return q
+
+class BalanceGetter(BaseProvider):
+    @classmethod
+    def get_content(cls, handler, url, query={}, full_url=''):
+        for c in query:
+            query[c] = query[c][0]
+        
+        if query.setdefault('exclusive', '') == '1':
+            op = operator.lt
+        else:
+            op = operator.le
+        
+        q = handler.dbsession.query(func.sum(Item.value))
+        if query.setdefault('year', '').isdigit():
+            query['year'] = int(query['year'])
+            if query.setdefault('month', '').isdigit():
+                query['month'] = int(query['month'])
+                if query.setdefault('day', '').isdigit():
+                    query['day'] = int(query['day'])
+                    year_day = '{:04}-{:02}-{02}'.format(
+                        query['year'], query['month'], query['day'])
+                    q = q.join(Item.invoice).filter(
+                        op(Invoice.date, year_day))
+                else:
+                    year_month = '{:04}-{:02}'.format(
+                        query['year'], query['month'])
+                    q = q.join(Item.invoice).filter(
+                        op(Invoice.year_month, year_month))
+            else:
+                q = q.join(Item.invoice).filter(
+                    op(Invoice.year, int(query['year'])))
+        
+        out = q.scalar()
+        if out is None:
+            out = 0
+        page = json.dumps(out)
+        
+        f = io.BytesIO(page.encode('utf8'))
+        
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Content-Length': length
+        }
+        
+        response = http.HTTPStatus.OK
+        
+        return response, headers, f, lambda: None
 

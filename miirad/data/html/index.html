@@ -1,6 +1,19 @@
 <table class="input">
     <tr>
         <td>
+            <label class="default-label">الرصيد الحالي:</label>
+        </td>
+        <td>
+            <label id='balance-label' class='default-input'></label>
+        </td>
+    </tr>
+</table>
+
+<button class="button" onclick="toggle_search_table()">لوحة البحث</button>
+
+<table id="search-table" class="input undisplayed">
+    <tr>
+        <td>
             <input id="search-input" placeholder="اسم الفاتورة" class="default-input">
         </td>
         <td colspan="2">

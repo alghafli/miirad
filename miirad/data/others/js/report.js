@@ -163,6 +163,9 @@ function generate_report() {
         
         cnvs = document.getElementById('graph_canvas');
         cnvs.width = report_table.offsetWidth;
+        populate_totals_table(grand_total);
+        populate_balance_labels(
+            q['year0'], q['month0'], q['year1'], q['month1']);
         generate_graph(cnvs, grand_total);
     }
     
@@ -174,6 +177,74 @@ function generate_report() {
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+function populate_totals_table(data) {
+    total_incomes = 0;
+    total_expenses = 0;
+    for (key in data) {
+        total_incomes += data[key][0];
+        total_expenses += data[key][1];
+    }
+    grand_total = total_incomes - total_expenses;
+    document.getElementById("total-incomes-label").innerHTML =
+        total_incomes.toFixed(2);
+    document.getElementById("total-expenses-label").innerHTML =
+        total_expenses.toFixed(2);
+    if (grand_total < 0) {
+        document.getElementById("grand-total-income-td").innerHTML = ""
+        document.getElementById("grand-total-expense-td").innerHTML =
+            "<label class='default-input'>{}</label>".replace(
+                "{}", (-grand_total).toFixed(2));
+    } else {
+        document.getElementById("grand-total-income-td").innerHTML =
+            "<label class='default-input'>{}</label>".replace(
+                "{}", grand_total.toFixed(2));
+        document.getElementById("grand-total-expense-td").innerHTML = ""
+    }
+}
+
+function populate_balance_labels(y0, m0, y1, m1) {
+    var start_xmlhttp = new XMLHttpRequest();
+    var end_xmlhttp = new XMLHttpRequest();
+    var start_url = "_get_balance?exclusive=1&year={}&month={}";
+    var end_url = "_get_balance?year={}&month={}";
+    
+    if (isNaN(parseInt(y0)) || isNaN(parseInt(m0))) y0 = m0 = '0';
+    if (isNaN(parseInt(y1)) || isNaN(parseInt(m1))) {
+        y1 = '9999';
+        m1 = '99';
+    }
+    
+    start_url = start_url.replace('{}', y0).replace('{}', m0)
+    end_url = end_url.replace('{}', y1).replace('{}', m1)
+    
+    
+    
+    function myFunction(label_id, value) {
+        document.getElementById(label_id).innerHTML =
+            value.toFixed(2)
+    }
+    
+    start_xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var value = JSON.parse(this.responseText);
+            myFunction("start-balance-label", value);
+        }
+    };
+    
+    start_xmlhttp.open("GET", start_url, true);
+    start_xmlhttp.send();
+    
+    end_xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var value = JSON.parse(this.responseText);
+            myFunction("end-balance-label", value);
+        }
+    };
+    
+    end_xmlhttp.open("GET", end_url, true);
+    end_xmlhttp.send();
 }
 
 function generate_graph(obj, data) {
