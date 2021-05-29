@@ -1,5 +1,5 @@
 from pathlib import Path
-from cofan import Filer, BaseProvider, Server, BaseHandler
+from cofan import Filer, Server
 from miirad import providers, utils
 from miirad.providers import *
 import time
@@ -46,7 +46,6 @@ db_patterner.add('download$', DBDownloader)
 db_patterner.add('download/sqlite', SQLiteDownloader(config_dir))
 db_patterner.add('download/xlsx', XLSXDownloader(config_dir))
 db_patterner.add('upload', SQLiteUploader(config_dir))
-db_patterner.add('delete_db', DBDeleter(config_dir))
 db_patterner.add('report$', Reporter)
 db_patterner.add('$', Indexer)
 
@@ -57,11 +56,12 @@ db_selector = DBSelector(config_dir, db_patterner)
 session_patterner = PostPatterner()
 session_patterner.add('edit_db$', edit_db)
 session_patterner.add('settings$', SettingsViewer)
-session_patterner.add('db_list$', DbLister(config_dir))
+session_patterner.add('db_list$', DBLister(config_dir))
 session_patterner.add('change_db$', DBChanger(config_dir))
 session_patterner.add('copy_db$', DBCopier(config_dir))
+session_patterner.add('delete_db$', DBDeleter(config_dir))
+session_patterner.add('_restore_backup$', PostBackupRestorer(config_dir))
 session_patterner.add('', db_selector)
-
 
 #top level
 assets = Filer(miirad_dir / 'data/others')
@@ -70,6 +70,7 @@ session_provider = Sessioner(session_patterner)
 toplevel = PostPatterner()
 toplevel.add('__assets__/', assets)
 toplevel.add('about$', Texter(miirad_dir / 'data/html/about.html'))
+toplevel.add('quit', Quitter)
 toplevel.add('', session_provider)
 
 templater = Templater(

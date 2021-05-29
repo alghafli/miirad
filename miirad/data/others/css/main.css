@@ -42,3 +42,20 @@ div.content {
 .undisplayed {
     display: none;
 }
+
+div.vertical-div {
+    display: flex;
+    flex-direction: column;
+}
+
+@media print {
+  .no-print {
+    display: none;
+  }
+}
+
+@media screen {
+  .no-screen {
+    display: none;
+  }
+}

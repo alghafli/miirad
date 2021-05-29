@@ -1,3 +1,5 @@
+var grand_total = {};
+
 function populate_category_select() {
     var xmlhttp = new XMLHttpRequest();
     var url = "_get_categories";
@@ -46,9 +48,10 @@ function generate_report() {
         var cat;
         var total_income;
         var total_expense;
-        var grand_total = {};
         var report_header = document.getElementById("report-header");
         var report_table = document.getElementById("report-body");
+        
+        grand_total = {};
         
         report_header.innerHTML = "";
         
@@ -109,7 +112,9 @@ function generate_report() {
                         row.insertCell(-1);
                     }
                 }
-                row.insertCell(-1).innerHTML = key;
+                cell = row.insertCell(-1)
+                cell.innerHTML = key;
+                cell.style.textAlign = "center"
                 for (cat of obj.categories) {
                     if (obj.results[key].hasOwnProperty(cat[0]) &&
                             obj.results[key][cat[0]][1] > 0) {
@@ -143,7 +148,9 @@ function generate_report() {
                 } else {
                     row.insertCell(-1)
                 }
-                row.insertCell(-1).innerHTML = key;
+                cell = row.insertCell(-1)
+                cell.innerHTML = key;
+                cell.style.textAlign = "center"
                 if (obj.results[key][1] > 0) {
                     row.insertCell(-1).innerHTML =
                         obj.results[key][1].toFixed(2);
@@ -180,13 +187,16 @@ function generate_report() {
 }
 
 function populate_totals_table(data) {
-    total_incomes = 0;
-    total_expenses = 0;
+    var total_incomes = 0;
+    var total_expenses = 0;
+    var grand_total;
+    
     for (key in data) {
         total_incomes += data[key][0];
         total_expenses += data[key][1];
     }
     grand_total = total_incomes - total_expenses;
+    
     document.getElementById("total-incomes-label").innerHTML =
         total_incomes.toFixed(2);
     document.getElementById("total-expenses-label").innerHTML =
@@ -194,11 +204,11 @@ function populate_totals_table(data) {
     if (grand_total < 0) {
         document.getElementById("grand-total-income-td").innerHTML = ""
         document.getElementById("grand-total-expense-td").innerHTML =
-            "<label class='default-input'>{}</label>".replace(
+            "<label class='default-input medium-input'>{}</label>".replace(
                 "{}", (-grand_total).toFixed(2));
     } else {
         document.getElementById("grand-total-income-td").innerHTML =
-            "<label class='default-input'>{}</label>".replace(
+            "<label class='default-input medium-input'>{}</label>".replace(
                 "{}", grand_total.toFixed(2));
         document.getElementById("grand-total-expense-td").innerHTML = ""
     }
@@ -281,6 +291,7 @@ function generate_graph(obj, data) {
     draw_xlabels(ctx, dw, dh, margin, Object.keys(data), 30 * data[Object.keys(data)[0]].length);
     draw_ylabels(ctx, dw, dh, xlabel_clearance, max_value, 10);
     draw_bars(ctx, dw, dh, data, 30);
+    document.getElementById("graph_img").src = obj.toDataURL();
 }
 
 function draw_coordinates(ctx, w, h) {
@@ -392,3 +403,11 @@ function draw_bars(ctx, w, h, data, bar_width=30) {
 
 populate_category_select();
 
+var mselect = document.getElementById("month0");
+mselect.selectedIndex = 1;
+mselect = document.getElementById("month1");
+mselect.selectedIndex = mselect.length - 1;
+var yselect = document.getElementById("year0");
+yselect.selectedIndex = yselect.length - 1;
+yselect = document.getElementById("year1");
+yselect.selectedIndex = yselect.length - 1;

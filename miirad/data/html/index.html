@@ -9,9 +9,9 @@
     </tr>
 </table>
 
-<button class="button" onclick="toggle_search_table()">لوحة البحث</button>
+<button class="button no-print" onclick="toggle_search_table()">لوحة البحث</button>
 
-<table id="search-table" class="input undisplayed">
+<table id="search-table no-print" class="input undisplayed">
     <tr>
         <td>
             <input id="search-input" placeholder="اسم الفاتورة" class="default-input">
@@ -92,7 +92,7 @@
 
 <div class="form-group">
     <h3 class="table-title">جدول الفواتير</h3>
-    <a href="/edit_invoice"><div class="button large-text">+</div></a>
+    <a class="no-print" href="/edit_invoice"><div class="button large-text">+</div></a>
 </div>
 <table id="invoice-table" class="default">
     <thead>
@@ -108,7 +108,7 @@
     </thead>
     <tbody id="invoice-table-body" class="table-hover"></tbody>
 </table>
-<div class="form-group">
+<div class="form-group no-print">
     <button class="button large-text" onclick="next_page(1);">&lt</button>
     <label id="page_label" class="default-label large-text"></label>
     <button class="button large-text" onclick="next_page(-1);">&gt</button>

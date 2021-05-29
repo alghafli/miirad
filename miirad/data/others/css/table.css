@@ -5,32 +5,29 @@ h3.table-title {
    font-style:normal;
    text-decoration: underline;
    text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
-   text-transform: uppercase;
    margin-bottom: 0px;
 }
 
 /*** Table Styles ***/
 
 table.default {
-  background: #f4ecae;
+  background: #fafdc9;
   border-radius:10px;
-  border-collapse: collapse;
   margin: auto;
   width: 100%;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid;
+  border-spacing: 0;
 }
  
 table.default th {
   color: #fd0808;
-  background: #fafdc9;
-  border-bottom:4px solid #02064b;
-  border-left: 1px solid #01054b;
+  border: 1px solid #01054b;
   font-size:23px;
   font-weight: 100;
   padding:5px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   vertical-align:middle;
-  text-align: right;
 }
 
 table.default th:first-child {
@@ -39,12 +36,10 @@ table.default th:first-child {
 
 table.default th:last-child {
   border-top-left-radius:10px;
-  border-left:none;
 }
 
 table.default tr {
-  border-top: 1px solid #020b3b;
-  border-bottom: 1px solid #020b3b;
+  border: 1px solid #020b3b;
   color: #0d2fd9;
   font-size:16px;
   font-weight:normal;
@@ -54,17 +49,8 @@ table.default tr {
 table.default tbody.table-hover tr:hover td {
   background: #077e76;
   color: #fddc08;
-  border-top: 1px solid #03215e;
-}
- 
-table.default tr:first-child {
-  border-top:none;
 }
 
-table.default tr:last-child {
-  border-bottom:none;
-}
- 
 table.default tr:nth-child(odd) td {
   background: #f9f6f6;
 }
@@ -83,12 +69,7 @@ table.default tr td {
   font-weight:300;
   font-size:18px;
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
-  border-right: 1px solid #3f0903;
+  border: 1px solid #3f0903;
   vertical-align:middle;
-  text-align: left;
-}
-
-table.default tr td:first-child {
-  border-right: none;
 }
 
