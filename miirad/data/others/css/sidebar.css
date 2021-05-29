@@ -1,12 +1,17 @@
 div.nav {
   width: 100%;
-  margin-left: 2px;
+  margin-bottom: 2px;
   border-bottom: 5px solid black;
   background: #aaac53;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  align-items: stretch;
+}
+
+@media print {
+  div.nav {
+    display: none;
+  }
 }
 
 div.nav ul {
@@ -23,10 +28,10 @@ div.nav ul {
 div.nav ul li {
   border-right: 1px solid #040a7c;
   color: #052efa;
-  font-size:18px;
+  font-size:28px;
   font-weight:normal;
   background: #86fdc2;
-  padding: 20px;
+  padding: 5px 20px;
   text-align:right;
   vertical-align: middle;
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
@@ -46,7 +51,7 @@ div.nav ul li:first-child {
   color: #f40b17;
   background: #fdfbb4;
   font-size:28px;
-  padding: 10px;
+  padding: 5px 20px;
   text-align: center;
   width: 200px;
 }

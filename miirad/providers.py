@@ -4,7 +4,7 @@ import random
 from pathlib import Path
 from sqlalchemy import create_engine, desc, asc
 from sqlalchemy.orm import Session
-from .utils import partial_caller, backup
+from .utils import partial_caller, backup, set_engine, DBLocker
 from .db import *
 import io
 import http
@@ -167,81 +167,129 @@ class Sessioner(Checker):
         return response, headers, f, postproc
 
 class DBSelector(BaseProvider):
+    locker = DBLocker()
     def __init__(self, path, provider):
         self.path = Path(path).resolve()
         self.provider = provider
     
     def get_content(self, handler, url, query={}, full_url=''):
-        try:
-            if 'dbengine' not in handler.session:
-                p = self.path / 'db'
-                p.mkdir(parents=True, exist_ok=True)
-                dbs = list(p.iterdir())
-                if dbs:
-                    latest_db = max(dbs, key=lambda p: p.stat().st_atime)
-                    engine = create_engine('sqlite:///{}'.format(latest_db))
-                    handler.session['dbengine'] = engine
-                    handler.session['dbname'] = latest_db.name
-                else:
-                    raise FileNotFoundError
+        if 'dbengine' not in handler.session:
+            p = self.path / 'db'
+            p.mkdir(parents=True, exist_ok=True)
+            dbs = list(p.iterdir())
+            if dbs:
+                latest_db = max(dbs, key=lambda p: p.stat().st_atime)
+                set_engine(handler, latest_db)
+            else:
+                f = io.BytesIO()
             
-            handler.dbsession = Session(handler.session['dbengine'])
+                response = http.HTTPStatus.SEE_OTHER
+                length = f.seek(0, 2)
+                f.seek(0)
+                headers = {
+                        'Content-Type':'text/plain;charset=utf-8',
+                        'Content-Length': length,
+                        'Location': '/edit_db'
+                    }
+                
+                return response, headers, f, lambda: None
+        
+        with self.locker.reg(handler.session['dbname']):
+            db_dir = self.path / 'db'
+            db_path = db_dir / handler.session['dbname']
+            if db_path.exists():
+                handler.dbsession = Session(handler.session['dbengine'])
+                
+                response, headers, f, postproc = \
+                    self.provider.get_content(handler, url, query, full_url)
+                postproc = partial_caller(handler.dbsession.close, postproc)
+                return response, headers, f, postproc
+            elif list(db_dir.iterdir()):
+                f = io.BytesIO()
             
-            response, headers, f, postproc = \
-                self.provider.get_content(handler, url, query, full_url)
-            postproc = partial_caller(handler.dbsession.close, postproc)
+                response = http.HTTPStatus.SEE_OTHER
+                length = f.seek(0, 2)
+                f.seek(0)
+                headers = {
+                        'Content-Type':'text/plain;charset=utf-8',
+                        'Content-Length': length,
+                        'Location': '/db_list'
+                    }
+                
+                return response, headers, f, lambda: None
+            else:
+                f = io.BytesIO()
             
-            return response, headers, f, postproc
-        except Exception:
-            print(traceback.format_exc())
-            f = io.BytesIO()
-            
-            response = http.HTTPStatus.SEE_OTHER
-            length = f.seek(0, 2)
-            f.seek(0)
-            headers = {
-                    'Content-Type':'text/plain;charset=utf-8',
-                    'Content-Length': length,
-                    'Location': '/edit_db'
-                }
-            
-            return response, headers, f, lambda: None
+                response = http.HTTPStatus.SEE_OTHER
+                length = f.seek(0, 2)
+                f.seek(0)
+                headers = {
+                        'Content-Type':'text/plain;charset=utf-8',
+                        'Content-Length': length,
+                        'Location': '/edit_db'
+                    }
+                
+                return response, headers, f, lambda: None
     
     def post_content(self, handler, url, query={}, full_url=''):
-        try:
-            if 'dbengine' not in handler.session:
-                p = self.path / 'db'
-                p.mkdir(parents=True, exist_ok=True)
-                dbs = list(p.iterdir())
-                if dbs:
-                    latest_db = max(dbs, key=lambda p: p.stat().st_atime)
-                    engine = create_engine('sqlite:///{}'.format(latest_db))
-                    handler.session['dbengine'] = engine
-                    handler.session['dbname'] = latest_db.name
-                else:
-                    raise FileNotFoundError
+        if 'dbengine' not in handler.session:
+            p = self.path / 'db'
+            p.mkdir(parents=True, exist_ok=True)
+            dbs = list(p.iterdir())
+            if dbs:
+                latest_db = max(dbs, key=lambda p: p.stat().st_atime)
+                set_engine(handler, latest_db)
+            else:
+                f = io.BytesIO()
+                
+                response = http.HTTPStatus.SEE_OTHER
+                length = f.seek(0, 2)
+                f.seek(0)
+                headers = {
+                        'Content-Type':'text/plain;charset=utf-8',
+                        'Content-Length': length,
+                        'Location': '/edit_db'
+                    }
+                
+                return response, headers, f, lambda: None
+        
+        with self.locker.reg(handler.session['dbname']):
+            db_dir = self.path / 'db'
+            db_path = db_dir / handler.session['dbname']
+            if db_path.exists():
+                handler.dbsession = Session(handler.session['dbengine'])
             
-            handler.dbsession = Session(handler.session['dbengine'])
+                response, headers, f, postproc = \
+                    self.provider.post_content(handler, url, query, full_url)
+                postproc = partial_caller(handler.dbsession.close, postproc)
+                return response, headers, f, postproc
+            elif list(db_dir.iterdir()):
+                f = io.BytesIO()
             
-            response, headers, f, postproc = \
-                self.provider.post_content(handler, url, query, full_url)
-            postproc = partial_caller(handler.dbsession.close, postproc)
+                response = http.HTTPStatus.SEE_OTHER
+                length = f.seek(0, 2)
+                f.seek(0)
+                headers = {
+                        'Content-Type':'text/plain;charset=utf-8',
+                        'Content-Length': length,
+                        'Location': '/db_list'
+                    }
+                
+                return response, headers, f, lambda: None
+            else:
+                f = io.BytesIO()
             
-            return response, headers, f, postproc
-        except Exception:
-            print(traceback.format_exc())
-            f = io.BytesIO()
+                response = http.HTTPStatus.SEE_OTHER
+                length = f.seek(0, 2)
+                f.seek(0)
+                headers = {
+                        'Content-Type':'text/plain;charset=utf-8',
+                        'Content-Length': length,
+                        'Location': '/edit_db'
+                    }
+                
+                return response, headers, f, lambda: None
             
-            response = http.HTTPStatus.SEE_OTHER
-            length = f.seek(0, 2)
-            f.seek(0)
-            headers = {
-                    'Content-Type':'text/plain;charset=utf-8',
-                    'Content-Length': length,
-                    'Location': '/edit_db'
-                }
-            
-            return response, headers, f, lambda: None
 
 class DBEditor(BaseProvider):
     def __init__(self, path):
@@ -438,7 +486,11 @@ class InvoiceLister(BaseProvider):
             ).group_by(
                 Invoice.id
             ).order_by(
-                invoice_date.desc(), Invoice.t, Invoice.id.desc()
+                Invoice.year.desc(),
+                Invoice.month.desc(),
+                Invoice.day.desc(),
+                Invoice.t.desc(),
+                Invoice.id.desc()
             )
         
         if query.setdefault('q', ''):
@@ -578,19 +630,14 @@ class InvoiceViewer(BaseProvider):
                 expense_template.format('مجموع المصاريف', total_expenses))
             
             if total >= 0:
-                grand_total_incomes = '<label class="default-input">{:.2f}</label>'.format(total)
+                grand_total_incomes = '<label class="default-input medium-input">{:.2f}</label>'.format(total)
                 grand_total_expenses = ''
-                #sums.append(
-                #    income_template.format('المجموع الكلي', total))
             else:
                 grand_total_incomes = ''
-                grand_total_expenses = '<label class="default-input">{:.2f}</label>'.format(-total)
-                #sums.append(
-                #    expense_template.format('المجموع الكلي', -total))
+                grand_total_expenses = '<label class="default-input medium-input">{:.2f}</label>'.format(-total)
             
             incomes = '\n'.join(incomes)
             expenses = '\n'.join(expenses)
-            #sums = '\n'.join(sums)
             f = f.format(
                 invoice=invoice, category=category,
                 items=incomes+expenses,
@@ -881,7 +928,7 @@ class SettingsViewer(BaseProvider):
         
         return response, headers, f, lambda: None
 
-class DbLister(BaseProvider):
+class DBLister(BaseProvider):
     def __init__(self, path):
         self.path = Path(path).resolve()
     
@@ -889,10 +936,10 @@ class DbLister(BaseProvider):
         template = (
             '<tr>' +
             '<td>' +
-            '<br>' +
+            '<div class="vertical-div">' + 
             '<button class="button" onclick="document.location.href = \'copy_db?current_dbname={0}\';">نسخ</button>' +
-            '<br>' +
             '<button class="button" onclick="document.location.href = \'delete_db?current_dbname={0}\';">حذف</button>' +
+            '</div>' + 
             '</td>' +
             '<td onclick="change_db(&quot;{0}&quot;);">{0}</td>' +
             '</tr>'
@@ -935,10 +982,7 @@ class DBChanger(BaseProvider):
         
         db_path = self.path / 'db' / '{}.sqlite3'.format(
             content['dbname'])
-        engine = create_engine('sqlite:///{}'.format(db_path))
-    
-        handler.session['dbengine'] = engine
-        handler.session['dbname'] = db_path.name
+        set_engine(handler, db_path)
         
         f = io.BytesIO()
             
@@ -990,10 +1034,7 @@ class DBCopier(BaseProvider):
             content['current_dbname'])
         pout = self.path / 'db' / '{}.sqlite3'.format(content['dbname'])
         backup(pin, pout)
-        engine = create_engine('sqlite:///{}'.format(pout))
-    
-        handler.session['dbengine'] = engine
-        handler.session['dbname'] = pout.name
+        set_engine(handler, pout)
         
         f = io.BytesIO()
             
@@ -1207,6 +1248,7 @@ class BackupRestorer(BaseProvider):
             named_backup_html.append(template.format(c[0], option_text))
         
         f = f.format(
+            dbname=dbname,
             auto_backup_list='\n'.join(auto_backup_html),
             named_backup_list='\n'.join(named_backup_html)
         )
@@ -1215,6 +1257,10 @@ class BackupRestorer(BaseProvider):
         headers = {}
         
         return response, headers, f, lambda: None
+
+class PostBackupRestorer(BaseProvider):
+    def __init__(self, path):
+        self.path = Path(path).resolve()
     
     def post_content(self, handler, url, query={}, full_url=''):
         l = int(handler.headers['Content-Length'])
@@ -1236,9 +1282,13 @@ class BackupRestorer(BaseProvider):
         else:
             backup_path = self.path / 'backup/named' / content['named-backup']
         
-        dbpath = self.path / 'db' / '{}'.format(
-            handler.session['dbname'])
-        backup(backup_path, dbpath, readable=False)
+        dbname = '{}.sqlite3'.format(content['dbname'])
+        dbpath = self.path / 'db' / dbname
+        
+        
+        with DBSelector.locker.block_inc(dbname):
+            DBSelector.locker.until_empty(dbname)
+            backup(backup_path, dbpath)
         
         f = io.BytesIO()
             
@@ -1248,7 +1298,7 @@ class BackupRestorer(BaseProvider):
         headers = {
                 'Content-Type':'text/plain;charset=utf-8',
                 'Content-Length': length,
-                'Location': ''
+                'Location': '/'
             }
         
         return response, headers, f, lambda: None
@@ -1269,33 +1319,6 @@ class DBDownloader(BaseProvider):
         headers = {}
         
         return response, headers, f, lambda: None
-
-class SQLiteDownloader(BaseProvider):
-    def __init__(self, path):
-        self.path = Path(path).resolve()
-    
-    def get_content(self, handler, url, query={}, full_url=''):
-        db_path = self.path / 'db' / handler.session['dbname']
-        tmp_handle, tmp_path = tempfile.mkstemp()
-        try:
-            open(tmp_handle).close()
-            backup(db_path, tmp_path)
-            
-            p = Path(tmp_path)
-            f = p.open('br')
-            
-            response = http.HTTPStatus.OK
-            length = f.seek(0, 2)
-            f.seek(0)
-            headers = {
-                'Content-Type':'application/vnd.sqlite3',
-                'Content-Length': length
-            }
-            
-            return response, headers, f, lambda: p.unlink()
-        except:
-            Path(tmp_path).unlink()
-            raise
 
 class XLSXDownloader(BaseProvider):
     def __init__(self, path):
@@ -1389,7 +1412,9 @@ class SQLiteUploader(BaseProvider):
         dbpath = self.path / 'db' / '{}'.format(
             handler.session['dbname'])
         
-        backup(data, dbpath, readable=False)
+        with DBSelector.locker.block_inc(dbname):
+            DBSelector.locker.until_empty(dbname)
+            backup(data, dbpath)
         
         f = io.BytesIO()
             
@@ -1439,8 +1464,11 @@ class DBDeleter(BaseProvider):
             if c.name not in content:
                 content[c.name] = c.value
         
-        dbpath = self.path / 'db' / '{}.sqlite3'.format(content['dbname'])
-        dbpath.unlink()
+        dbname = '{}.sqlite3'.format(content['dbname'])
+        dbpath = self.path / 'db' / dbname
+        with DBSelector.locker.block_inc(dbname):
+            DBSelector.locker.until_empty(dbname)
+            dbpath.unlink()
         
         f = io.BytesIO()
             
@@ -1647,5 +1675,22 @@ class BalanceGetter(BaseProvider):
         
         response = http.HTTPStatus.OK
         
+        return response, headers, f, lambda: None
+
+class Quitter(BaseProvider):
+    @staticmethod
+    def post_content(handler, url, query={}, full_url=''):
+        f = io.BytesIO()
+            
+        response = http.HTTPStatus.SEE_OTHER
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+                'Content-Type':'text/plain;charset=utf-8',
+                'Content-Length': length,
+                'Location': '/'
+            }
+        
+        handler.server.shutdown()
         return response, headers, f, lambda: None
 

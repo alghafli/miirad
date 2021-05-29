@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <form id="quit-form" class="hidden" method="post" action="/quit"></form>
     <div class="main">
         <div class="nav">
             <ul>
@@ -17,6 +18,7 @@
                 <li><a href="/report">تقرير</a></li>
                 <li><a href="/settings">الإعدادات</a></li>
                 <li><a href="/about">عن البرنامج</a></li>
+                <li><a onclick="document.getElementById('quit-form').submit(); return false;">خروج</a></li>
             </ul>
             {db_label}
         </div>
