@@ -21,7 +21,6 @@ from http import HTTPStatus
 import time
 import tempfile
 import operator
-import openpyxl
 
 def is_integer(v):
     try:

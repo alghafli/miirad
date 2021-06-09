@@ -149,10 +149,6 @@ def write_xlsx(session, xlsx_f):
         with open(xlsx_f, 'wb') as f:
             return write_xlsx(session, f)
     else:
-        MAX_ITEMS = 200
-        import time
-        t0 = time.time()
-        print(t0)
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = 'الفواتير'
@@ -166,7 +162,6 @@ def write_xlsx(session, xlsx_f):
             Invoice.id.desc()
         )
         
-        item_count = 0
         for row in q:
             if row.category:
                 cat_name = row.category.name
@@ -184,28 +179,19 @@ def write_xlsx(session, xlsx_f):
             expenses = [c for c in items if c.value < 0]
             
             for c in incomes:
-                if item_count > MAX_ITEMS:
-                    break
                 values = [c.value, c.name, '', c.remark]
                 ws.append(values)
                 last_row = ws.max_row
                 ws[last_row][0].fill = openpyxl.styles.PatternFill(
                     fill_type = "solid", fgColor="c3ffc3")
-                item_count += 1
-            
+                
             for c in expenses:
-                if item_count > MAX_ITEMS:
-                    break
                 values = ['', c.name, -c.value, c.remark]
                 ws.append(values)
                 last_row = ws.max_row
                 ws[last_row][2].fill = openpyxl.styles.PatternFill(
                     fill_type = "solid", fgColor="ffc3c3")
-                item_count += 1
-            
-            if item_count > MAX_ITEMS:
-                break
-            
+                
             total_income = sum([c.value for c in incomes])
             total_expense = sum([-c.value for c in expenses])
             values = [total_income, 'المجموع', total_expense, '']
@@ -216,9 +202,7 @@ def write_xlsx(session, xlsx_f):
                 c.fill = openpyxl.styles.PatternFill(
                     fill_type = "solid", fgColor="c3c3ff")
             
-            print(item_count)
         wb.save(xlsx_f)
-        print(time.time() - t0)
 
 def lock_connection(con, readable=True):
     if readable:
