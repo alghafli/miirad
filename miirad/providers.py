@@ -4,7 +4,7 @@ import random
 from pathlib import Path
 from sqlalchemy import create_engine, desc, asc
 from sqlalchemy.orm import Session
-from .utils import partial_caller, backup, set_engine, DBLocker
+from .utils import partial_caller, backup, set_engine, DBLocker, write_xlsx, CSVConverter
 from .db import *
 import io
 import http
@@ -21,6 +21,7 @@ from http import HTTPStatus
 import time
 import tempfile
 import operator
+import openpyxl
 
 def is_integer(v):
     try:
@@ -1321,31 +1322,32 @@ class DBDownloader(BaseProvider):
         return response, headers, f, lambda: None
 
 class XLSXDownloader(BaseProvider):
-    def __init__(self, path):
-        self.path = Path(path).resolve()
-    
-    def get_content(self, handler, url, query={}, full_url=''):
-        raise NotImplementedError
-        db_path = self.path / 'db' / handler.session['dbname']
-        tmp_handle, tmp_path = tempfile.mkstemp()
-        try:
-            open(tmp_handle).close()
-            backup(db_path, tmp_path)
-            
-            p = Path(tmp_path)
-            f = p.open('br')
-            
-            response = http.HTTPStatus.OK
-            length = f.seek(0, 2)
-            f.seek(0)
-            headers = {
-                'Content-Type':'application/vnd.sqlite3',
-                'Content-Length': length
-            }
-            
-            return response, headers, f, lambda: p.unlink()
-        except:
-            Path(tmp_path).unlink()
+    @staticmethod
+    def get_content(handler, url, query={}, full_url=''):
+        f = tempfile.TemporaryFile()
+        write_xlsx(handler.dbsession, f)
+        
+        response = http.HTTPStatus.OK
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+            'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Length': length
+        }
+        
+        return response, headers, f, lambda: None
+
+class CSVDownloader(BaseProvider):
+    @staticmethod
+    def get_content(handler, url, query={}, full_url=''):
+        f = CSVConverter(handler.dbsession)
+        
+        response = http.HTTPStatus.OK
+        headers = {
+            'Content-Type':'text/csv',
+        }
+        
+        return response, headers, f, lambda: None
 
 class SQLiteDownloader(BaseProvider):
     def __init__(self, path):
@@ -1520,8 +1522,7 @@ class Reporter(BaseProvider):
         f = f.format(years=years, months=months)
         
         response = http.HTTPStatus.OK
-        headers = {
-        }
+        headers = {}
         
         return response, headers, f, lambda: None
 
@@ -1680,17 +1681,15 @@ class BalanceGetter(BaseProvider):
 class Quitter(BaseProvider):
     @staticmethod
     def post_content(handler, url, query={}, full_url=''):
-        f = io.BytesIO()
+        p = Path(__file__).parent / 'data/html/quit.html'
+        f = p.open('br')
             
-        response = http.HTTPStatus.SEE_OTHER
+        response = http.HTTPStatus.OK
         length = f.seek(0, 2)
         f.seek(0)
         headers = {
-                'Content-Type':'text/plain;charset=utf-8',
+                'Content-Type':'text/html;charset=utf-8',
                 'Content-Length': length,
-                'Location': '/'
             }
-        
-        handler.server.shutdown()
-        return response, headers, f, lambda: None
+        return response, headers, f, handler.server.shutdown
 

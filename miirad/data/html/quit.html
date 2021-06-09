@@ -1,0 +1,28 @@
+ <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Miirad">
+    <meta name="author" content="Mohammad Alghafli">
+    <title>ميراد</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, width=device-width">
+</head>
+
+<body>
+    <label id="check-label">قيد التشغيل، الرجاء الانتظار...</label>
+    <script>
+        function check_status() {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', '/quit');
+            http.onload = function() {
+                setTimeout(check_status, 1000);
+            };
+            http.onerror = function() {
+                document.getElementById('check-label').innerHTML = "تم الإغلاق";
+            }
+            http.send();
+        }
+        setTimeout(check_status, 1000);
+    </script>
+</body>
+</html>
