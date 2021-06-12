@@ -6,7 +6,7 @@ from pathlib import Path
 import threading
 from threading import RLock, Condition
 from functools import partial
-import openpyxl
+#import openpyxl
 from .db import Invoice
 import io
 import csv
