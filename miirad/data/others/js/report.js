@@ -27,12 +27,16 @@ function populate_category_select() {
 
 function generate_report() {
     var q = {}
+    var category_input = document.getElementById("category-input");
+    
     q["year0"] = document.getElementById("year0").value;
     q["month0"] = document.getElementById("month0").value;
     q["year1"] = document.getElementById("year1").value;
     q["month1"] = document.getElementById("month1").value;
-    q["category"] = document.getElementById("category-input").value;
+    q["category"] = category_input.value;
     q["categorize"] = document.getElementById("categorize-input").checked;
+    q["gregorian"] = true;
+    category_name = category_input.options[category_input.selectedIndex].text
     
     var qtext = [];
     for (key in q) {
@@ -48,8 +52,37 @@ function generate_report() {
         var cat;
         var total_income;
         var total_expense;
+        var report_info = document.getElementById("report-info");
         var report_header = document.getElementById("report-header");
         var report_table = document.getElementById("report-body");
+        
+        info = "تقرير الفترة من بداية شهر {} إلى نهاية شهر {}";
+        
+        start_date_info = "{}/{}".replace('{}', q.year0).
+            replace('{}', q.month0);
+        if (obj.hasOwnProperty("gregorian0")) {
+            start_date_info = start_date_info + "الموافق {}/{}/{}";
+            start_date_info = start_date_info.
+                replace('{}', obj.gregorian0[0]).
+                replace('{}', obj.gregorian0[1]).
+                replace('{}', obj.gregorian0[2]);
+        }
+        end_date_info = "{}/{}".replace('{}', q.year1).
+            replace('{}', q.month1);
+        if (obj.hasOwnProperty("gregorian1")) {
+            end_date_info = end_date_info + "الموافق {}/{}/{}";
+            end_date_info = end_date_info.
+                replace('{}', obj.gregorian1[0]).
+                replace('{}', obj.gregorian1[1]).
+                replace('{}', obj.gregorian1[2]);
+        }
+        
+        if (q.category !== "") {
+            info = info + ' للتصنيف "{}"'.replace('{}', category_name);
+        }
+        
+        report_info.innerHTML = info.replace('{}', start_date_info).
+            replace('{}', end_date_info);
         
         grand_total = {};
         
@@ -204,11 +237,11 @@ function populate_totals_table(data) {
     if (grand_total < 0) {
         document.getElementById("grand-total-income-td").innerHTML = ""
         document.getElementById("grand-total-expense-td").innerHTML =
-            "<label class='default-input medium-input'>{}</label>".replace(
+            "<label class='default-input medium-input total-field'>{}</label>".replace(
                 "{}", (-grand_total).toFixed(2));
     } else {
         document.getElementById("grand-total-income-td").innerHTML =
-            "<label class='default-input medium-input'>{}</label>".replace(
+            "<label class='default-input medium-input total-field'>{}</label>".replace(
                 "{}", grand_total.toFixed(2));
         document.getElementById("grand-total-expense-td").innerHTML = ""
     }

@@ -24,3 +24,15 @@ def fromtimestamp(ts, calendar='gregorian'):
     load_calendar(calendar)
     return calendars[calendar].fromtimestamp(ts)
 
+def from_gregorian(y, m, d, calendar='gregorian'):
+    load_calendar(calendar)
+    return calendars[calendar].from_gregorian(y, m, d)
+
+def to_gregorian(y, m, d, calendar='gregorian'):
+    load_calendar(calendar)
+    return calendars[calendar].to_gregorian(y, m, d)
+
+def month_length(y, m, calendar='gregorian'):
+    load_calendar(calendar)
+    return calendars[calendar].month_length(y, m)
+

@@ -12,6 +12,8 @@ table.input {
   border-radius: 10px;
   border: none;
   width: 100px;
+  margin: 0;
+  box-sizing: content-box;
 }
 
 .default-label {
@@ -57,3 +59,14 @@ table.input {
     min-width: 50px;
 }
 
+.total-field {
+  background-color: #86fdc2;
+}
+
+.subtotal-field {
+  background-color: #fdfbb4;
+}
+
+.balance-label {
+  background-color: #fdfbb4;
+}

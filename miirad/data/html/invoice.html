@@ -7,10 +7,10 @@
             <label class="default-input medium-input">{invoice.id}</label>
         </td>
         <td>
-            <label class="default-label">تاريخها</label>
+            <label class="default-label">العنوان</label>
         </td>
         <td>
-            <label class="default-input">{invoice.date} {invoice.t}</label>
+            <label class="default-input">{invoice.name}</label>
         </td>
         <td>
             <a class="no-print" href="/edit_invoice?id={invoice.id}"><div class="button">تعديل</div></a>
@@ -18,16 +18,16 @@
     </tr>
     <tr>
         <td>
-            <label class="default-label">العنوان</label>
+            <label class="default-label">التصنيف</label>
         </td>
         <td>
-            <label class="default-input medium-input">{invoice.name}</label>
+            <label class="default-input medium-input">{category}</label>
         </td>
         <td>
-            <label class="default-label">الفئة</label>
+            <label class="default-label">التاريخ</label>
         </td>
         <td>
-            <label class="default-input">{category}</label>
+            <label class="default-input">{invoice.date} {invoice.t}</label>
         </td>
         <td>
             <a class="no-print" href="/delete_invoice?id={invoice.id}"><div class="button">حذف</div></a>
@@ -55,7 +55,7 @@
             <label class="default-label">مجموع الإيرادات</label>
         </td>
         <td>
-            <label class="default-input medium-input">{total_incomes:.2f}</label>
+            <label class="default-input medium-input subtotal-field">{total_incomes:.2f}</label>
         </td>
         <td>
         </td>
@@ -67,7 +67,7 @@
         <td>
         </td>
         <td>
-            <label class="default-input medium-input">{total_expenses:.2f}</label>
+            <label class="default-input medium-input subtotal-field">{total_expenses:.2f}</label>
         </td>
     </tr>
     <tr>
