@@ -6,10 +6,13 @@ from pathlib import Path
 import threading
 from threading import RLock, Condition
 from functools import partial
-#import openpyxl
 from .db import Invoice
 import io
 import csv
+try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
 
 try:
     import netifaces
@@ -145,6 +148,8 @@ class CSVConverter:
         pass
 
 def write_xlsx(session, xlsx_f):
+    if openpyxl is None:
+        raise RuntimeError("excel support is not installed")
     if not hasattr(xlsx_f, 'write'):
         with open(xlsx_f, 'wb') as f:
             return write_xlsx(session, f)

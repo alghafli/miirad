@@ -11,7 +11,7 @@
                     {months}
                 </select>
                 <label class="default-label">/</label>
-                <select id="year0" class="default-input small-input">
+                <select id="year0" class="default-input medium-input">
                     <option value="">سنة</option>
                     {years}
                 </select>
@@ -29,7 +29,7 @@
                     {months}
                 </select>
                 <label class="default-label">/</label>
-                <select id="year1" class="default-input small-input">
+                <select id="year1" class="default-input medium-input">
                     <option value="">سنة</option>
                     {years}
                 </select>
@@ -57,6 +57,7 @@
 </table>
 
 <h3 class="table-title">التقرير</h3>
+<label id="report-info" class="default-label"></label>
 <table class="default">
     <thead id="report-header">
     </thead>
@@ -66,59 +67,60 @@
 
 <hr>
 
-<table class="input">
-    <tr>
-        <td>
-            <label class="default-label">مجموع الإيرادات</label>
-        </td>
-        <td>
-            <label id="total-incomes-label" class="default-input medium-input"></label>
-        </td>
-        <td>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="default-label">مجموع المصاريف</label>
-        </td>
-        <td>
-        </td>
-        <td>
-            <label id="total-expenses-label" class="default-input medium-input"></label>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="default-label">المجموع الكلي</label>
-        </td>
-        <td id="grand-total-income-td">
-        </td>
-        <td id="grand-total-expense-td">
-        </td>
-    </tr>
-</table>
+<div style="display: grid; grid-template-columns: 1fr 2px 1fr;">
+    <table class="input">
+        <tr>
+            <td>
+                <label class="default-label">مجموع الإيرادات</label>
+            </td>
+            <td>
+                <label id="total-incomes-label" class="default-input medium-input subtotal-field"></label>
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="default-label">مجموع المصاريف</label>
+            </td>
+            <td>
+            </td>
+            <td>
+                <label id="total-expenses-label" class="default-input medium-input subtotal-field"></label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="default-label">المجموع الكلي</label>
+            </td>
+            <td id="grand-total-income-td">
+            </td>
+            <td id="grand-total-expense-td">
+            </td>
+        </tr>
+    </table>
 
-<hr>
-
-<table class="input">
-    <tr>
-        <td>
-            <label class="default-label">الرصيد بداية الفترة:</label>
-        </td>
-        <td>
-            <label id='start-balance-label' class='default-input'></label>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="default-label">الرصيد نهاية الفترة:</label>
-        </td>
-        <td>
-            <label id='end-balance-label' class='default-input'></label>
-        </td>
-    </tr>
-</table>
-
+    <div style="background: black;"></div>    
+    
+    <table class="input">
+        <tr>
+            <td>
+                <label class="default-label">الرصيد بداية الفترة:</label>
+            </td>
+            <td>
+                <label id='start-balance-label' class="default-input medium-input balance-label"></label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="default-label">الرصيد نهاية الفترة:</label>
+            </td>
+            <td>
+                <label id='end-balance-label' class="default-input medium-input balance-label"></label>
+            </td>
+        </tr>
+    </table>
+</div>
 
 <canvas class='no-print' id="graph_canvas" width="1000px" height="500px" class="chart">
 </canvas>

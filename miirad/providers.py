@@ -630,11 +630,11 @@ class InvoiceViewer(BaseProvider):
                 expense_template.format('مجموع المصاريف', total_expenses))
             
             if total >= 0:
-                grand_total_incomes = '<label class="default-input medium-input">{:.2f}</label>'.format(total)
+                grand_total_incomes = '<label class="default-input medium-input total-field">{:.2f}</label>'.format(total)
                 grand_total_expenses = ''
             else:
                 grand_total_incomes = ''
-                grand_total_expenses = '<label class="default-input medium-input">{:.2f}</label>'.format(-total)
+                grand_total_expenses = '<label class="default-input medium-input total-field">{:.2f}</label>'.format(-total)
             
             incomes = '\n'.join(incomes)
             expenses = '\n'.join(expenses)
@@ -1595,6 +1595,16 @@ class ReportGetter(BaseProvider):
                         last_month[0] += 1
                     out['results']['{}-{:02}'.format(*last_month)] = 0, 0
                 out['results'][c[0]] = c[3], c[4]
+        
+        if query.setdefault('gregorian', False):
+            cal = Config.get(handler.dbsession, 'calendar', default='gregorian')
+            if query['year0'].isdigit() and query['month0'].isdigit():
+                d = [int(query['year0']), int(query['month0']), 1]
+                out['gregorian0'] = multicalendar.to_gregorian(*d, cal)
+            if query['year1'].isdigit() and query['month1'].isdigit():
+                d = [int(query['year1']), int(query['month1'])]
+                d.append(multicalendar.month_length(*d, cal))
+                out['gregorian1'] = multicalendar.to_gregorian(*d, cal)
             
         page = json.dumps(out)
         

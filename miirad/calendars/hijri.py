@@ -17,3 +17,14 @@ def fromtimestamp(ts):
     return [d.year, d.month, d.day, t.hour, t.minute,
         t.second + t.microsecond / 1e6]
 
+def from_gregorian(y, m, d):
+    h = Gregorian(y, m, d).to_hijri()
+    return h.year, h.month, h.day
+
+def to_gregorian(y, m, d):
+    g = Hijri(y, m, d, validate=False).to_gregorian()
+    return g.year, g.month, g.day
+
+def month_length(y, m):
+    return Hijri(y, m, 1, validate=False).month_length()
+
