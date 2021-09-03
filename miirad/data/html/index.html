@@ -13,24 +13,26 @@
 
 <table id="search-table" class="input undisplayed no-print">
     <tr>
-        <td>
-            <input id="search-input" placeholder="اسم الفاتورة" class="default-input">
+        <td colspan="3">
+            <input type="button" class="button" value="ابحث" onclick="filter_invoices();">
         </td>
+    </tr>
+    <tr>
         <td colspan="2">
-            <select id="category-input" class="default-input">
+            <input id="search-input" placeholder="اسم الفاتورة" class="default-input medium-input">
+        </td>
+        <td>
+            <select id="category-input" class="default-input medium-input">
             </select>
         </td>
     </tr>
     <tr>
-        <td>
-            <label class="default-label">من</label>
-        </td>
-        <td colspan="2">
-            <label class="default-label">إلى</label>
+        <td colspan="3">
+            <label class="default-label">من تاريخ</label>
         </td>
     </tr>
     <tr>
-        <td>
+        <td colspan="3">
             <div class="form-group">
                 <select id="day-0-input" class="default-input small-input">
                     <option value="">ي</option>
@@ -42,13 +44,20 @@
                     {months}
                 </select>
                 <label class="default-label large-text">/</label>
-                <select id="year-0-input" class="default-input medium-input">
+                <select id="year-0-input" class="default-input small-input">
                     <option value="">سنة</option>
                     {years}
                 </select>
             </div>
         </td>
-        <td colspan="2">
+    </tr>
+    <tr>
+        <td colspan="3">
+            <label class="default-label">إلى تاريخ</label>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
             <div class="form-group">
                 <select id="day-1-input" class="default-input small-input">
                     <option value="">ي</option>
@@ -60,7 +69,7 @@
                     {months}
                 </select>
                 <label class="default-label large-text">/</label>
-                <select id="year-1-input" class="default-input medium-input">
+                <select id="year-1-input" class="default-input small-input">
                     <option value="">سنة</option>
                     {years}
                 </select>
@@ -69,23 +78,18 @@
     </tr>
     <tr>
         <td>
-            <label class="default-label">القيمة بين</label>
+            <label class="default-label" colspan="3">القيمة بين</label>
         </td>
     </tr>
     <tr>
         <td>
-            <input id="value0" type="number" class="default-input">
+            <input id="value0" type="number" class="default-input medium-input">
         </td>
         <td>
             <label class="default-label">و</label>
         </td>
         <td>
-            <input id="value1" type="number" class="default-input">
-        </td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <input type="button" class="button" value="ابحث" onclick="filter_invoices();">
+            <input id="value1" type="number" class="default-input medium-input">
         </td>
     </tr>
 </table>

@@ -1,7 +1,9 @@
 <form id="invoice_form" class="undisplayed" method="post" enctype="multipart/form-data">
     {invoice_id_input}
 </form>
-<input type="submit" form="invoice_form" class="button large-text"  value="حفظ">
+<template class='save_button'>
+    <input type="submit" form="invoice_form" class='nav-button' value="حفظ">
+</template>
 <table class="input">
     <tr>
         <td>
@@ -70,7 +72,7 @@
 
 <br>
 
-<div>
+<div class="stack-header">
     <button class="button large-text medium-input" onclick="show_incomes();">الإيرادات</button>
     <button class="button large-text medium-input" onclick="show_expenses();">المصاريف</button>
 </div>
@@ -117,5 +119,4 @@
     </table>
 </div>
 
-<input type="submit" form="invoice_form" class="button large-text"  value="حفظ">
 <script src="/__assets__/js/edit_invoice.js"></script>

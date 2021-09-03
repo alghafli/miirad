@@ -16,6 +16,20 @@ table.input {
   box-sizing: content-box;
 }
 
+.nav-button {
+  color: #f40b17;
+  font-size:28px;
+  font-weight:normal;
+  background: #fdfbb4;
+  padding: 5px 20px;
+  text-align:right;
+  vertical-align: middle;
+  text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 10px;
+  margin-right: auto;
+}
+
 .default-label {
     font-size: 20px;
     color: #02048d;
@@ -69,4 +83,13 @@ table.input {
 
 .balance-label {
   background-color: #fdfbb4;
+}
+
+.stack-header {
+  display: flex;
+  justify-content: end;
+}
+
+.stack-header > * {
+  margin-right: 10px;
 }

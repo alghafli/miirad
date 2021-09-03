@@ -5,7 +5,6 @@ div.nav {
   background: #aaac53;
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
 }
 
 @media print {
@@ -24,7 +23,7 @@ div.nav ul {
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
   list-style-type: none;
 }
-  
+
 div.nav ul li {
   border-right: 1px solid #040a7c;
   color: #052efa;
@@ -46,7 +45,6 @@ div.nav ul li:first-child {
   border-right:none;
 }
 
-
 .dbname-label {
   color: #f40b17;
   background: #fdfbb4;
@@ -54,5 +52,22 @@ div.nav ul li:first-child {
   padding: 5px 20px;
   text-align: center;
   width: 200px;
+}
+
+div.nav ul.secondary {
+  flex-direction: row-reverse;
+  margin-right: auto;
+}
+
+div.nav ul.secondary li {
+  color: #052efa;
+  font-size:28px;
+  font-weight:normal;
+  text-align:right;
+  vertical-align: middle;
+  text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+  padding-right: 0;
+  padding-left: 0;
+  margin-right: 10px;
 }
 
