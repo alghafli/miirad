@@ -54,3 +54,9 @@ function show_expenses() {
         expenses.classList.remove('undisplayed');
     }
 }
+
+var template = document.querySelector('.save_button');
+var nav_bar = document.querySelector('.nav ul.secondary');
+
+save_button = template.content.cloneNode(true);
+nav_bar.appendChild(save_button);
