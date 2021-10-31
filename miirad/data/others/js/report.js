@@ -58,19 +58,21 @@ function generate_report() {
         
         info = "تقرير الفترة من بداية شهر {} إلى نهاية شهر {}";
         
-        start_date_info = "{}/{}".replace('{}', q.year0).
-            replace('{}', q.month0);
+        start_date_info = "<span class='report-date'>{}/{}</span>".
+          replace('{}', q.year0).
+          replace('{}', q.month0);
         if (obj.hasOwnProperty("gregorian0")) {
-            start_date_info = start_date_info + "الموافق {}/{}/{}";
+            start_date_info = start_date_info + "الموافق <span class='report-date'>{}/{}/{}</span>";
             start_date_info = start_date_info.
                 replace('{}', obj.gregorian0[0]).
                 replace('{}', obj.gregorian0[1]).
                 replace('{}', obj.gregorian0[2]);
         }
-        end_date_info = "{}/{}".replace('{}', q.year1).
-            replace('{}', q.month1);
+        end_date_info = "<span class='report-date'>{}/{}</span>".
+          replace('{}', q.year1).
+          replace('{}', q.month1);
         if (obj.hasOwnProperty("gregorian1")) {
-            end_date_info = end_date_info + "الموافق {}/{}/{}";
+            end_date_info = end_date_info + "الموافق <span class='report-date'>{}/{}/{}</span>";
             end_date_info = end_date_info.
                 replace('{}', obj.gregorian1[0]).
                 replace('{}', obj.gregorian1[1]).

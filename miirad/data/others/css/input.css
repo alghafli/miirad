@@ -85,6 +85,10 @@ table.input {
   background-color: #fdfbb4;
 }
 
+.report-date {
+  color: #ffff8e;
+}
+
 .stack-header {
   display: flex;
   justify-content: end;

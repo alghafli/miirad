@@ -1,11 +1,22 @@
 <div id="dummy"></div>
 <table class="input">
     <tr>
+        <td><label class="default-label">التصنيف</label></td>
+        <td>
+            <select id="category-input" placeholder="Category" class="default-input">
+            </select>
+        </td>
+        <td colspan="2">
+            <input type="checkbox" id="categorize-input">
+             <label for="vehicle1" class="default-label">لكل تصنيف على حدة؟</label>
+        </td>
+    </tr>
+    <tr>
         <td>
             <label class="default-label">من</label>
         </td>
         <td>
-            <div class="form-group">
+            <div class="form-group" style="min-width: 300px;">
                 <select id="month0" class="default-input small-input">
                     <option value="">شهر</option>
                     {months}
@@ -17,13 +28,11 @@
                 </select>
             </div>
         </td>
-    </tr>
-    <tr>
         <td>
             <label class="default-label">إلى</label>
         </td>
         <td>
-            <div class="form-group">
+            <div class="form-group" style="min-width: 300px;">
                 <select id="month1" class="default-input small-input">
                     <option value="">شهر</option>
                     {months}
@@ -37,19 +46,6 @@
         </td>
     </tr>
     <tr>
-        <td><label class="default-label">التصنيف</label></td>
-        <td>
-            <select id="category-input" placeholder="Category" class="default-input">
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="4">
-            <input type="checkbox" id="categorize-input">
-             <label for="vehicle1" class="default-label">لكل تصنيف على حدة؟</label>
-        </td>
-    </tr>
-    <tr>
         <td colspan="4">
             <button type="button" class="button" onclick="generate_report();">إنشاء تقرير</button>
         </td>
@@ -58,14 +54,6 @@
 
 <h3 class="table-title">التقرير</h3>
 <label id="report-info" class="default-label"></label>
-<table class="default">
-    <thead id="report-header">
-    </thead>
-    <tbody id="report-body">
-    </tbody>
-</table>
-
-<hr>
 
 <div style="display: grid; grid-template-columns: 1fr 2px 1fr;">
     <table class="input">
@@ -121,6 +109,15 @@
         </tr>
     </table>
 </div>
+
+<hr>
+
+<table class="default">
+    <thead id="report-header">
+    </thead>
+    <tbody id="report-body">
+    </tbody>
+</table>
 
 <canvas class='no-print' id="graph_canvas" width="1000px" height="500px" class="chart">
 </canvas>
