@@ -18,6 +18,14 @@
         </td>
     </tr>
     <tr>
+        <td colspan="3">
+            <label class="default-label">الاسم والتصنيف</label>
+        </td>
+        <td colspan="3">
+            <label class="default-label">القيمة بين</label>
+        </td>
+    </tr>
+    <tr>
         <td colspan="2">
             <input id="search-input" placeholder="اسم الفاتورة" class="default-input medium-input">
         </td>
@@ -25,10 +33,22 @@
             <select id="category-input" class="default-input medium-input">
             </select>
         </td>
+        <td>
+            <input id="value0" type="number" class="default-input medium-input">
+        </td>
+        <td>
+            <label class="default-label">و</label>
+        </td>
+        <td>
+            <input id="value1" type="number" class="default-input medium-input">
+        </td>
     </tr>
     <tr>
         <td colspan="3">
             <label class="default-label">من تاريخ</label>
+        </td>
+        <td colspan="3">
+            <label class="default-label">إلى تاريخ</label>
         </td>
     </tr>
     <tr>
@@ -50,13 +70,6 @@
                 </select>
             </div>
         </td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <label class="default-label">إلى تاريخ</label>
-        </td>
-    </tr>
-    <tr>
         <td colspan="3">
             <div class="form-group">
                 <select id="day-1-input" class="default-input small-input">
@@ -74,22 +87,6 @@
                     {years}
                 </select>
             </div>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="default-label" colspan="3">القيمة بين</label>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <input id="value0" type="number" class="default-input medium-input">
-        </td>
-        <td>
-            <label class="default-label">و</label>
-        </td>
-        <td>
-            <input id="value1" type="number" class="default-input medium-input">
         </td>
     </tr>
 </table>
