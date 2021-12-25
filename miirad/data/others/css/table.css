@@ -1,6 +1,6 @@
 h3.table-title {
    color: #a3fd9b;
-   font-size: 30px;
+   font-size: 1.9rem;
    font-weight: 400;
    font-style:normal;
    text-decoration: underline;
@@ -23,7 +23,7 @@ table.default {
 table.default th {
   color: #fd0808;
   border: 1px solid #01054b;
-  font-size:23px;
+  font-size:1.5rem;
   font-weight: 100;
   padding:5px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -41,7 +41,7 @@ table.default th:last-child {
 table.default tr {
   border: 1px solid #020b3b;
   color: #0d2fd9;
-  font-size:16px;
+  font-size:1rem;
   font-weight:normal;
   text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
 }
@@ -67,7 +67,7 @@ table.default tr td {
   background: #dbd9e8;
   padding:5px;
   font-weight:300;
-  font-size:18px;
+  font-size:1rem;
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
   border: 1px solid #3f0903;
   vertical-align:middle;
