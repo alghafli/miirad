@@ -5,7 +5,7 @@ table.input {
 .button {
   color: #f40b17;
   background: #fdfbb4;
-  font-size:18px;
+  font-size:1rem;
   padding:5px;
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -18,7 +18,7 @@ table.input {
 
 .nav-button {
   color: #f40b17;
-  font-size:28px;
+  font-size:1.8rem;
   font-weight:normal;
   background: #fdfbb4;
   padding: 5px 20px;
@@ -27,11 +27,10 @@ table.input {
   text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
   border: none;
   border-radius: 10px;
-  margin-right: auto;
 }
 
 .default-label {
-    font-size: 20px;
+    font-size: 1rem;
     color: #02048d;
 }
 
@@ -39,7 +38,7 @@ table.input {
     display: block;
     width: 300px;
     padding: 8px 16px;
-    font-size: 20px;
+    font-size: 0.8rem;
     border-radius: 6px;
     border: 1px solid #093e9a;
     background: #feffe0;

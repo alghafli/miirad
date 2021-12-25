@@ -1,32 +1,23 @@
-<table class="input">
-    <tr>
-        <td>
-            <label class="default-label">الرصيد الحالي:</label>
-        </td>
-        <td>
-            <label id='balance-label' class='default-input medium-input balance-label'></label>
-        </td>
-    </tr>
-</table>
-
-<button class="button no-print" onclick="toggle_search_table()">لوحة البحث</button>
+<div class='form-input'>
+  <button class="button no-print" onclick="toggle_search_table()">لوحة البحث</button>
+</div>
 
 <table id="search-table" class="input undisplayed no-print">
     <tr>
-        <td colspan="3">
-            <input type="button" class="button" value="ابحث" onclick="filter_invoices();">
-        </td>
+      <td>
+        <input type="button" class="button" value="ابحث" onclick="filter_invoices();">
+      </td>
+      <td colspan='3'>
+      </td>
+      <td>
+          <label class="default-label">من تاريخ</label>
+      </td>
+      <td>
+          <label class="default-label">إلى تاريخ</label>
+      </td>
     </tr>
     <tr>
-        <td colspan="3">
-            <label class="default-label">الاسم والتصنيف</label>
-        </td>
-        <td colspan="3">
-            <label class="default-label">القيمة بين</label>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2">
+        <td>
             <input id="search-input" placeholder="اسم الفاتورة" class="default-input medium-input">
         </td>
         <td>
@@ -34,54 +25,37 @@
             </select>
         </td>
         <td>
-            <input id="value0" type="number" class="default-input medium-input">
+            <input id="value0" type="number" class="default-input medium-input" laceholder='القيمة من'>
         </td>
         <td>
-            <label class="default-label">و</label>
+            <input id="value1" type="number" class="default-input medium-input" placeholder='القيمة إلى'>
         </td>
         <td>
-            <input id="value1" type="number" class="default-input medium-input">
-        </td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <label class="default-label">من تاريخ</label>
-        </td>
-        <td colspan="3">
-            <label class="default-label">إلى تاريخ</label>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="3">
             <div class="form-group">
                 <select id="day-0-input" class="default-input small-input">
                     <option value="">ي</option>
                     {days}
                 </select>
-                <label class="default-label large-text">/</label>
                 <select id="month-0-input" class="default-input small-input">
                     <option value="">ش</option>
                     {months}
                 </select>
-                <label class="default-label large-text">/</label>
                 <select id="year-0-input" class="default-input small-input">
                     <option value="">سنة</option>
                     {years}
                 </select>
             </div>
         </td>
-        <td colspan="3">
+        <td>
             <div class="form-group">
                 <select id="day-1-input" class="default-input small-input">
                     <option value="">ي</option>
                     {days}
                 </select>
-                <label class="default-label large-text">/</label>
                 <select id="month-1-input" class="default-input small-input">
                     <option value="">ش</option>
                     {months}
                 </select>
-                <label class="default-label large-text">/</label>
                 <select id="year-1-input" class="default-input small-input">
                     <option value="">سنة</option>
                     {years}
@@ -93,6 +67,11 @@
 
 <div class="form-group">
     <h3 class="table-title">جدول الفواتير</h3>
+    <div class='form-group'>
+      <label class="default-label">الرصيد الحالي:</label>
+      <label id='balance-label' class='default-input medium-input balance-label'></label>
+    </div>
+    
     <a class="no-print" href="/edit_invoice"><div class="button large-text">+</div></a>
 </div>
 <table id="invoice-table" class="default">
