@@ -16,6 +16,11 @@ table.input {
   box-sizing: content-box;
 }
 
+.button.unselected {
+  color: #555555;
+  background: #999999;
+}
+
 .nav-button {
   color: #f40b17;
   font-size:1.8rem;
@@ -90,9 +95,9 @@ table.input {
 
 .stack-header {
   display: flex;
-  justify-content: end;
 }
 
 .stack-header > * {
   margin-right: 10px;
 }
+
