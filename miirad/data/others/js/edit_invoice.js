@@ -42,6 +42,15 @@ function show_incomes() {
     if (incomes.classList.contains('undisplayed')) {
         incomes.classList.remove('undisplayed');
     }
+    
+    var income_button = document.querySelector('.income-button');
+    var expense_button = document.querySelector('.expense-button');
+    if (!expense_button.classList.contains('unselected')) {
+        expense_button.classList.add('unselected');
+    }
+    if (income_button.classList.contains('unselected')) {
+        income_button.classList.remove('unselected');
+    }
 }
 
 function show_expenses() {
@@ -53,10 +62,19 @@ function show_expenses() {
     if (expenses.classList.contains('undisplayed')) {
         expenses.classList.remove('undisplayed');
     }
+    
+    var income_button = document.querySelector('.income-button');
+    var expense_button = document.querySelector('.expense-button');
+    if (!income_button.classList.contains('unselected')) {
+        income_button.classList.add('unselected');
+    }
+    if (expense_button.classList.contains('unselected')) {
+        expense_button.classList.remove('unselected');
+    }
 }
 
 var template = document.querySelector('.save_button');
-var nav_bar = document.querySelector('.nav ul.secondary');
+var nav_bar = document.querySelector('.nav ul.main');
 
 save_button = template.content.cloneNode(true);
 nav_bar.appendChild(save_button);

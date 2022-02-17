@@ -20,8 +20,6 @@
         <td>
             <input name="name" form="invoice_form" placeholder="العنوان" class="default-input" value="{invoice.name}" required>
         </td>
-    </tr>
-    <tr>
         <td>
             <label class="default-label large-text">التصنيف</label>
         </td>
@@ -51,8 +49,6 @@
                 <input name="year" form="invoice_form" type="number" class="default-input small-input" value="{invoice.year}" required>
             </div>
         </td>
-    </tr>
-    <tr>
         <td>
             <label class="default-label large-text">الوقت</label>
         </td>
@@ -70,14 +66,12 @@
     </tr>
 </table>
 
-<br>
-
 <div class="stack-header">
-    <button class="button large-text medium-input" onclick="show_incomes();">الإيرادات</button>
-    <button class="button large-text medium-input" onclick="show_expenses();">المصاريف</button>
+    <button class="button large-text medium-input income-button" onclick="show_incomes();">الإيرادات</button>
+    <button class="button large-text medium-input expense-button unselected" onclick="show_expenses();">المصاريف</button>
 </div>
+
 <div id="income-div">
-    <h3 class="table-title">الإيرادات</h3>
     <table id="income-table" class="default">
         <thead>
             <tr>
@@ -98,7 +92,6 @@
     </table>
 </div>
 <div id="expense-div" class="undisplayed">
-    <h3 class="table-title">المصاريف</h3>
     <table id="expense-table" class="default">
         <thead>
             <tr>
