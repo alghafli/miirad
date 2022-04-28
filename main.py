@@ -2,6 +2,7 @@ from pathlib import Path
 from cofan import Filer, Server
 from miirad import providers, utils
 from miirad.providers import *
+from miirad.users_db import *
 import time
 import argparse
 
@@ -30,6 +31,10 @@ else:
 config_dir = Path(args.config)
 miirad_dir = Path(providers.__file__).parent
 
+usersdbpath = config_dir / 'users.sqlite3'
+usersdbpath.parent.mkdir(parents=True, exist_ok=True)
+usersdb = create_engine('sqlite:///{}'.format(usersdbpath))
+
 #after selecting db
 db_patterner = PostPatterner()
 db_patterner.add('_get_categories$', Categorier)
@@ -49,19 +54,28 @@ db_patterner.add('upload', SQLiteUploader(config_dir))
 db_patterner.add('report$', Reporter)
 db_patterner.add('$', Indexer)
 
-#after getting session
+#after login
 edit_db = DBEditor(config_dir)
 db_selector = DBSelector(config_dir, db_patterner)
 
+login_patterner = PostPatterner()
+login_patterner.add('edit_db$', edit_db)
+login_patterner.add('settings$', SettingsViewer)
+login_patterner.add('db_list$', DBLister(config_dir))
+login_patterner.add('change_db$', DBChanger(config_dir))
+login_patterner.add('copy_db$', DBCopier(config_dir))
+login_patterner.add('delete_db$', DBDeleter(config_dir))
+login_patterner.add('_restore_backup$', PostBackupRestorer(config_dir))
+login_patterner.add('about$', Texter(miirad_dir / 'data/html/about.html'))
+login_patterner.add('quit', Quitter)
+login_patterner.add('', db_selector)
+
+user_checker = UserChecker(usersdb, login_patterner, '/login')
+
+#after getting session
 session_patterner = PostPatterner()
-session_patterner.add('edit_db$', edit_db)
-session_patterner.add('settings$', SettingsViewer)
-session_patterner.add('db_list$', DBLister(config_dir))
-session_patterner.add('change_db$', DBChanger(config_dir))
-session_patterner.add('copy_db$', DBCopier(config_dir))
-session_patterner.add('delete_db$', DBDeleter(config_dir))
-session_patterner.add('_restore_backup$', PostBackupRestorer(config_dir))
-session_patterner.add('', db_selector)
+session_patterner.add('login$', Loginner(usersdb))
+session_patterner.add('', user_checker)
 
 #top level
 assets = Filer(miirad_dir / 'data/others')
@@ -69,8 +83,6 @@ session_provider = Sessioner(session_patterner)
 
 toplevel = PostPatterner()
 toplevel.add('__assets__/', assets)
-toplevel.add('about$', Texter(miirad_dir / 'data/html/about.html'))
-toplevel.add('quit', Quitter)
 toplevel.add('', session_provider)
 
 templater = Templater(

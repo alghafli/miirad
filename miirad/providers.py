@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, desc, asc
 from sqlalchemy.orm import Session
 from .utils import partial_caller, backup, set_engine, DBLocker, write_xlsx, CSVConverter
 from .db import *
+from .users_db import User
 import io
 import http
 import urllib.parse
@@ -21,6 +22,7 @@ from http import HTTPStatus
 import time
 import tempfile
 import operator
+import hashlib
 
 def is_integer(v):
     try:
@@ -636,15 +638,39 @@ class InvoiceViewer(BaseProvider):
                 grand_total_incomes = ''
                 grand_total_expenses = '<label class="default-input medium-input total-field">{:.2f}</label>'.format(-total)
             
+            
+            mod_template = (
+                '<tr>' +
+                '<td><label class="default-label">{}</label></td>' +
+                '<td><label class="default-label">{}</label></td>' +
+                '</tr>'
+            )
+            
+            mods = []
+            
+            for mod in sorted(invoice.modifications, key=lambda c: c.timestamp):
+                mods.append(
+                  mod_template.format(
+                      time.strftime('%Y-%m-%d %H:%M:%S',
+                        time.localtime(mod.timestamp)
+                      ),
+                      mod.username
+                    )
+                  )
+            
             incomes = '\n'.join(incomes)
             expenses = '\n'.join(expenses)
+            mods = '\n'.join(mods)
+            
             f = f.format(
                 invoice=invoice, category=category,
                 items=incomes+expenses,
                 total_incomes=total_incomes,
                 total_expenses=total_expenses,
                 grand_total_expenses=grand_total_expenses,
-                grand_total_incomes=grand_total_incomes)
+                grand_total_incomes=grand_total_incomes,
+                mods=mods
+              )
         except ValueError:
             return BaseProvider.short_response(http.HTTPStatus.NOT_FOUND)
         
@@ -900,6 +926,16 @@ class InvoiceEditor(BaseProvider):
         for c in deleted_items:
             item = handler.dbsession.query(Item).get(c)
             handler.dbsession.delete(item)
+        
+        user_id = handler.session['user']
+        users_session = handler.user_session
+        user = users_session.query(User).filter(User.id==user_id).first()
+        print(user)
+        username = user.username
+        
+        mod = InvoiceModification(timestamp=time.time(), username=username,
+            invoice=invoice)
+        handler.dbsession.add(mod)
         
         handler.dbsession.commit()
         id_ = invoice.id
@@ -1701,4 +1737,140 @@ class Quitter(BaseProvider):
                 'Content-Length': length,
             }
         return response, headers, f, handler.server.shutdown
+
+class Loginner(BaseProvider):
+    def __init__(self, engine):
+        self.engine = engine
+    
+    @staticmethod
+    def get_content(handler, url, query={}, full_url=''):
+        p = Path(__file__).parent / 'data/html/login.html'
+        
+        f = p.read_text('utf-8')
+        
+        if 'failed' not in query:
+          f = f.replace('{{failed_text}}', '')
+        else:
+          f = f.replace('{{failed_text}}', '<label class="default-label" style="color: red">فشل الدخول</label>')
+        
+        response = http.HTTPStatus.OK
+        headers = {}
+        
+        return response, headers, f, lambda: None
+    
+    def post_content(self, handler, url, query={}, full_url=''):
+        l = int(handler.headers['Content-Length'])
+        content_type, pdict = parse_header(handler.headers['Content-Type'])
+        
+        content = handler.rfile.read(l)
+        stream = io.BytesIO(content)
+        mp = multipart.MultipartParser(
+            stream, pdict['boundary'], len(content), charset='utf8')
+        
+        content = {}
+        
+        for c in mp:
+            if c.name not in content:
+                content[c.name] = c.value
+        
+        session = Session(self.engine)
+        
+        q = session.query(User)
+        q = q.filter(User.username == content['username'])
+        user = q.one_or_none()
+        if user is None:
+          f = io.BytesIO()
+          
+          response = http.HTTPStatus.SEE_OTHER
+          length = f.seek(0, 2)
+          f.seek(0)
+          headers = {
+                  'Content-Type':'text/plain;charset=utf-8',
+                  'Content-Length': length,
+                  'Location': '/login?failed=1'
+              }
+          
+          return response, headers, f, lambda: None
+        
+        salted_password = content['password'].encode('utf8') + user.salt
+        sha = hashlib.sha512()
+        sha.update(salted_password)
+        if user.password != sha.digest():
+          f = io.BytesIO()
+          
+          response = http.HTTPStatus.SEE_OTHER
+          length = f.seek(0, 2)
+          f.seek(0)
+          headers = {
+                  'Content-Type':'text/plain;charset=utf-8',
+                  'Content-Length': length,
+                  'Location': '/login?failed=1'
+              }
+          
+          return response, headers, f, lambda: None
+        
+        handler.session['user'] = user.id
+        
+        f = io.BytesIO()
+            
+        response = http.HTTPStatus.SEE_OTHER
+        length = f.seek(0, 2)
+        f.seek(0)
+        headers = {
+                'Content-Type':'text/plain;charset=utf-8',
+                'Content-Length': length,
+                'Location': '/'
+            }
+        
+        return response, headers, f, lambda: None
+
+class UserChecker(BaseProvider):
+    def __init__(self, engine, provider, url):
+        self.engine = engine
+        self.provider = provider
+        self.url = url
+    
+    def check_user(self, handler):
+        return 'user' in handler.session and self.check_db_user(handler)
+    
+    def check_db_user(self, handler):
+        user_id = handler.session['user']
+        session = Session(self.engine)
+        return session.query(User).filter(User.id==user_id).count() > 0
+    
+    def get_content(self, handler, *args, **kwargs):
+        if self.check_user(handler):
+            handler.user_session = Session(self.engine)
+            return self.provider.get_content(handler, *args, **kwargs)
+        else:
+            f = io.BytesIO()
+            
+            response = http.HTTPStatus.SEE_OTHER
+            length = f.seek(0, 2)
+            f.seek(0)
+            headers = {
+                    'Content-Type':'text/plain;charset=utf-8',
+                    'Content-Length': length,
+                    'Location': '/login'
+                }
+            
+            return response, headers, f, lambda: None
+    
+    def post_content(self, handler, *args, **kwargs):
+        if self.check_user(handler):
+            handler.user_session = Session(self.engine)
+            return self.provider.post_content(handler, *args, **kwargs)
+        else:
+            f = io.BytesIO()
+            
+            response = http.HTTPStatus.SEE_OTHER
+            length = f.seek(0, 2)
+            f.seek(0)
+            headers = {
+                    'Content-Type':'text/plain;charset=utf-8',
+                    'Content-Length': length,
+                    'Location': '/login'
+                }
+            
+            return response, headers, f, lambda: None
 
