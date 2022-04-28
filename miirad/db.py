@@ -35,6 +35,7 @@ class Invoice(Base):
     
     category = relationship('Category')
     items = relationship("Item", back_populates="invoice", cascade='all, delete-orphan')
+    modifications = relationship("InvoiceModification", back_populates="invoice", cascade='all, delete-orphan')
     
     @hybrid_property
     def date(self):
@@ -137,3 +138,14 @@ class Config(Base):
         
         config.value = value
 
+class InvoiceModification(Base):
+    __tablename__ = 'invoice_modification'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(Integer, nullable=False, index=True)
+    username = Column(Text, CheckConstraint("username <> ''"),
+        index=True, nullable=False)
+    invoice_id = Column(Integer, ForeignKey('invoice.id'), index=True)
+    
+    invoice = relationship('Invoice')
+    

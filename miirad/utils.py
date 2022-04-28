@@ -6,7 +6,7 @@ from pathlib import Path
 import threading
 from threading import RLock, Condition
 from functools import partial
-from .db import Invoice
+from .db import Invoice, Base
 import io
 import csv
 try:
@@ -217,6 +217,7 @@ def lock_connection(con, readable=True):
 
 def set_engine(handler, dbpath):
     engine = create_engine('sqlite:///{}'.format(dbpath))
+    Base.metadata.create_all(engine)
     handler.session['dbengine'] = engine
     handler.session['dbname'] = dbpath.name
 
